@@ -6,36 +6,38 @@ from math import *
 import matplotlib.pyplot as plt
 
 
-MTOW = 300000
+MTOW = 23000 # [kg]
+MAC = 2.5 # [m]
+l_leadingedge = 11.23 # [m]
 
-xcg_w = 10 # [m]
-W_w = 0.149*MTOW # [N]
+xcg_w = 14 # [m]
+W_w = 0.149*MTOW # [kg]
 
-xcg_f = 11 # [m]
-W_f = 0.248*MTOW # [N]
+xcg_f = 15 # [m]
+W_f = 0.248*MTOW # [kg]
 
 xcg_h = 25 # [m]
-W_h = 0.018*MTOW # [N]
+W_h = 0.018*MTOW # [kg]
 
 xcg_v = 25 # [m]
-W_v = 0.02*MTOW # [N]
+W_v = 0.02*MTOW # [kg]
 
-xcg_mg = 12 # [m]
-W_mg = 0.035*MTOW #[N]
+xcg_mg = 17 # [m]
+W_mg = 0.035*MTOW #[kg]
 
 xcg_ng = 3 # [m]
-W_ng = 0.005*MTOW # [N]
+W_ng = 0.005*MTOW # [kg]
 
-xcg_p = 9 # [m]
-W_p = 0.103*MTOW # [N]
+xcg_p = 13 # [m]
+W_p = 0.103*MTOW # [kg]
 
 # Variable weights
 
 xcg_cf = 5 # [m]
-xcg_cb = 23 # [m]
+xcg_cb = 22 # [m]
 
-seat_pitch = 1.0 # [m]
-W_pass = 800 # [N]
+seat_pitch = 1 # [m]
+W_2pass = 160 # [kg]
 
 # x_c.g. calculation
 
@@ -45,8 +47,8 @@ W_fixed = W_w + W_f + W_h + W_v + W_mg + W_ng + W_p
 def cargoback(W_fixed, xcgOEW):
     W_old = W_fixed
     xcg_old = xcgOEW
-    W_cargob = 5000 # [N]
-    W_cargof = 4000 # [N]
+    W_cargob = 1000 # [kg]
+    W_cargof = 1000 # [kg]
     xcg_cargob = 26 # [m]
     xcg_cargof = 4 # [m]
     xcg_carback = [xcg_old]
@@ -66,8 +68,8 @@ xcg_carback, W_carback = cargoback(W_fixed, xcgOEW)
 def cargofront(W_fixed, xcgOEW):
     W_old = W_fixed
     xcg_old = xcgOEW
-    W_cargob = 5000  # [N]
-    W_cargof = 4000  # [N]
+    W_cargob = 1000  # [N]
+    W_cargof = 1000  # [N]
     xcg_cargob = 26  # [m]
     xcg_cargof = 4  # [m]
     xcg_carfront = [xcg_old]
@@ -84,7 +86,7 @@ def cargofront(W_fixed, xcgOEW):
 
 xcg_carfront, W_carfront = cargofront(W_fixed, xcgOEW)
 
-def passforwardwindow(W_carback, xcg_carback, W_pass, seat_pitch):
+def passforwardwindow(W_carback, xcg_carback, W_2pass, seat_pitch):
     # print(W_carback)
     W_old = W_carback[2]
     xcg_old = xcg_carback[2]
@@ -93,16 +95,16 @@ def passforwardwindow(W_carback, xcg_carback, W_pass, seat_pitch):
     W_list = [W_old]
     for i in range(1, 18):
         xcg_p.append(xcg_p[i-1] + seat_pitch)
-        xcg_new = (W_old*xcg_old + W_pass*xcg_p[i])/(W_old + W_pass)
+        xcg_new = (W_old*xcg_old + W_2pass*xcg_p[i])/(W_old + W_2pass)
         xcg_list.append(xcg_new)
-        W_list.append(W_old + W_pass)
-        W_old = W_old + W_pass
+        W_list.append(W_old + W_2pass)
+        W_old = W_old + W_2pass
         xcg_old = xcg_new
     return xcg_list, W_list
 
-xcg_passforward, W_passforward = passforwardwindow(W_carback, xcg_carback, W_pass, seat_pitch)
+xcg_passforward, W_passforward = passforwardwindow(W_carback, xcg_carback, W_2pass, seat_pitch)
 
-def passbackwindow(W_carback, xcg_carback, W_pass, seat_pitch):
+def passbackwindow(W_carback, xcg_carback, W_2pass, seat_pitch):
     W_old = W_carback[2]
     xcg_old = xcg_carback[2]
     xcg_p = [24]
@@ -110,17 +112,17 @@ def passbackwindow(W_carback, xcg_carback, W_pass, seat_pitch):
     W_list = [W_old]
     for i in range(1, 18):
         xcg_p.append(xcg_p[i-1] - seat_pitch)
-        xcg_new = (W_old*xcg_old + W_pass*xcg_p[i])/(W_old + W_pass)
+        xcg_new = (W_old*xcg_old + W_2pass*xcg_p[i])/(W_old + W_2pass)
         xcg_list.append(xcg_new)
-        W_list.append(W_old + W_pass)
-        W_old = W_old + W_pass
+        W_list.append(W_old + W_2pass)
+        W_old = W_old + W_2pass
         xcg_old = xcg_new
     return xcg_list, W_list
 
-xcg_passback, W_passback = passbackwindow(W_carback, xcg_carback, W_pass, seat_pitch)
+xcg_passback, W_passback = passbackwindow(W_carback, xcg_carback, W_2pass, seat_pitch)
 
 
-def passforwardaisle(W_passforward, xcg_passforward, W_pass, seat_pitch):
+def passforwardaisle(W_passforward, xcg_passforward, W_2pass, seat_pitch):
     W_old = W_passforward[17]
     xcg_old = xcg_passforward[17]
     xcg_p = [6]
@@ -128,16 +130,16 @@ def passforwardaisle(W_passforward, xcg_passforward, W_pass, seat_pitch):
     W_list = [W_old]
     for i in range(1, 18):
         xcg_p.append(xcg_p[i-1] + seat_pitch)
-        xcg_new = (W_old*xcg_old + W_pass*xcg_p[i])/(W_old + W_pass)
+        xcg_new = (W_old*xcg_old + W_2pass*xcg_p[i])/(W_old + W_2pass)
         xcg_list.append(xcg_new)
-        W_list.append(W_old + W_pass)
-        W_old = W_old + W_pass
+        W_list.append(W_old + W_2pass)
+        W_old = W_old + W_2pass
         xcg_old = xcg_new
     return xcg_list, W_list
 
-xcg_passforwardaisle, W_passforwardaisle = passforwardaisle(W_passforward, xcg_passforward, W_pass, seat_pitch)
+xcg_passforwardaisle, W_passforwardaisle = passforwardaisle(W_passforward, xcg_passforward, W_2pass, seat_pitch)
 
-def passbackaisle(W_passforward, xcg_passforward, W_pass, seat_pitch):
+def passbackaisle(W_passforward, xcg_passforward, W_2pass, seat_pitch):
     W_old = W_passforward[17]
     xcg_old = xcg_passforward[17]
     xcg_p = [24]
@@ -145,20 +147,20 @@ def passbackaisle(W_passforward, xcg_passforward, W_pass, seat_pitch):
     W_list = [W_old]
     for i in range(1, 18):
         xcg_p.append(xcg_p[i-1] - seat_pitch)
-        xcg_new = (W_old*xcg_old + W_pass*xcg_p[i])/(W_old + W_pass)
+        xcg_new = (W_old*xcg_old + W_2pass*xcg_p[i])/(W_old + W_2pass)
         xcg_list.append(xcg_new)
-        W_list.append(W_old + W_pass)
-        W_old = W_old + W_pass
+        W_list.append(W_old + W_2pass)
+        W_old = W_old + W_2pass
         xcg_old = xcg_new
     return xcg_list, W_list
 
-xcg_passbackaisle, W_passbackaisle = passbackaisle(W_passforward, xcg_passforward, W_pass, seat_pitch)
+xcg_passbackaisle, W_passbackaisle = passbackaisle(W_passforward, xcg_passforward, W_2pass, seat_pitch)
 
 def fuel(xcg_passbackaisle, W_passbackaisle):
     W_old = W_passbackaisle[17]
     xcg_old = xcg_passbackaisle[17]
-    xcg_fuel = 11 # [m]
-    W_fuel = 20000 # [N]
+    xcg_fuel = 14 # [m]
+    W_fuel = 5000 # [kg]
     W_fueltotal = [W_old]
     xcg_fueltotal = [xcg_old]
     xcg_total = (W_passbackaisle[17]*xcg_passbackaisle[17] + W_fuel*xcg_fuel)/(W_passbackaisle[17] + W_fuel)
