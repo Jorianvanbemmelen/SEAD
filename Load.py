@@ -15,10 +15,10 @@ l_leadingedge = 11.23 # [m]
 xcg_w = 14 # [m]
 W_w = 0.149*MTOW # [kg]
 
-xcg_mg = 17 # [m]
+xcg_mg = xcg_w + 3 # [m]
 W_mg = 0.035*MTOW #[kg]
 
-xcg_p = 13 # [m]
+xcg_p = xcg_w - 1 # [m]
 W_p = 0.103*MTOW # [kg]
 
 W_wgroup = W_w + W_mg + W_p
@@ -59,11 +59,11 @@ W_fixed = W_w + W_f + W_h + W_v + W_mg + W_ng + W_p
 
 def cargoback(W_fixed, xcgOEW):
     W_old = W_fixed
-    xcg_old = xcgOEW
+    xcg_old = xcgOEWmac
     W_cargob = 1000 # [kg]
     W_cargof = 1000 # [kg]
-    xcg_cargob = 26 # [m]
-    xcg_cargof = 4 # [m]
+    xcg_cargob = (26 - l_leadingedge)/MAC # [m]
+    xcg_cargof = (4 - l_leadingedge)/MAC # [m]
     xcg_carback = [xcg_old]
     W_carback = [W_old]
     xcg_carb = (W_old*xcg_old + W_cargob*xcg_cargob)/(W_old + W_cargob)
@@ -80,11 +80,11 @@ xcg_carback, W_carback = cargoback(W_fixed, xcgOEW)
 
 def cargofront(W_fixed, xcgOEW):
     W_old = W_fixed
-    xcg_old = xcgOEW
+    xcg_old = xcgOEWmac
     W_cargob = 1000  # [N]
     W_cargof = 1000  # [N]
-    xcg_cargob = 26  # [m]
-    xcg_cargof = 4  # [m]
+    xcg_cargob = (26 - l_leadingedge)/MAC  # [m]
+    xcg_cargof = (4 - l_leadingedge)/MAC  # [m]
     xcg_carfront = [xcg_old]
     W_carfront = [W_old]
     xcg_carf = (W_old*xcg_old + W_cargof*xcg_cargof)/(W_old + W_cargof)
@@ -103,11 +103,11 @@ def passforwardwindow(W_carback, xcg_carback, W_2pass, seat_pitch):
     # print(W_carback)
     W_old = W_carback[2]
     xcg_old = xcg_carback[2]
-    xcg_p = [6]
+    xcg_p = [(6 - l_leadingedge)/MAC]
     xcg_list = [xcg_old]
     W_list = [W_old]
     for i in range(1, 18):
-        xcg_p.append(xcg_p[i-1] + seat_pitch)
+        xcg_p.append(xcg_p[i-1] + seat_pitch/MAC)
         xcg_new = (W_old*xcg_old + W_2pass*xcg_p[i])/(W_old + W_2pass)
         xcg_list.append(xcg_new)
         W_list.append(W_old + W_2pass)
@@ -120,11 +120,11 @@ xcg_passforward, W_passforward = passforwardwindow(W_carback, xcg_carback, W_2pa
 def passbackwindow(W_carback, xcg_carback, W_2pass, seat_pitch):
     W_old = W_carback[2]
     xcg_old = xcg_carback[2]
-    xcg_p = [24]
+    xcg_p = [(24 - l_leadingedge)/MAC]
     xcg_list = [xcg_old]
     W_list = [W_old]
     for i in range(1, 18):
-        xcg_p.append(xcg_p[i-1] - seat_pitch)
+        xcg_p.append(xcg_p[i-1] - seat_pitch/MAC)
         xcg_new = (W_old*xcg_old + W_2pass*xcg_p[i])/(W_old + W_2pass)
         xcg_list.append(xcg_new)
         W_list.append(W_old + W_2pass)
@@ -134,15 +134,14 @@ def passbackwindow(W_carback, xcg_carback, W_2pass, seat_pitch):
 
 xcg_passback, W_passback = passbackwindow(W_carback, xcg_carback, W_2pass, seat_pitch)
 
-
 def passforwardaisle(W_passforward, xcg_passforward, W_2pass, seat_pitch):
     W_old = W_passforward[17]
     xcg_old = xcg_passforward[17]
-    xcg_p = [6]
+    xcg_p = [(6 - l_leadingedge)/MAC]
     xcg_list = [xcg_old]
     W_list = [W_old]
     for i in range(1, 18):
-        xcg_p.append(xcg_p[i-1] + seat_pitch)
+        xcg_p.append(xcg_p[i-1] + seat_pitch/MAC)
         xcg_new = (W_old*xcg_old + W_2pass*xcg_p[i])/(W_old + W_2pass)
         xcg_list.append(xcg_new)
         W_list.append(W_old + W_2pass)
@@ -155,11 +154,11 @@ xcg_passforwardaisle, W_passforwardaisle = passforwardaisle(W_passforward, xcg_p
 def passbackaisle(W_passforward, xcg_passforward, W_2pass, seat_pitch):
     W_old = W_passforward[17]
     xcg_old = xcg_passforward[17]
-    xcg_p = [24]
+    xcg_p = [(24 - l_leadingedge)/MAC]
     xcg_list = [xcg_old]
     W_list = [W_old]
     for i in range(1, 18):
-        xcg_p.append(xcg_p[i-1] - seat_pitch)
+        xcg_p.append(xcg_p[i-1] - seat_pitch/MAC)
         xcg_new = (W_old*xcg_old + W_2pass*xcg_p[i])/(W_old + W_2pass)
         xcg_list.append(xcg_new)
         W_list.append(W_old + W_2pass)
@@ -172,7 +171,7 @@ xcg_passbackaisle, W_passbackaisle = passbackaisle(W_passforward, xcg_passforwar
 def fuel(xcg_passbackaisle, W_passbackaisle):
     W_old = W_passbackaisle[17]
     xcg_old = xcg_passbackaisle[17]
-    xcg_fuel = 14 # [m]
+    xcg_fuel = (xcg_w - l_leadingedge)/MAC # [m]
     W_fuel = 5000 # [kg]
     W_fueltotal = [W_old]
     xcg_fueltotal = [xcg_old]
