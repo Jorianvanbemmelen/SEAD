@@ -10,8 +10,22 @@ MTOW = 23000 # [kg]
 MAC = 2.5 # [m]
 l_leadingedge = 11.23 # [m]
 
+# Wing group, wing, main landing gear, propulsion
+
 xcg_w = 14 # [m]
 W_w = 0.149*MTOW # [kg]
+
+xcg_mg = 17 # [m]
+W_mg = 0.035*MTOW #[kg]
+
+xcg_p = 13 # [m]
+W_p = 0.103*MTOW # [kg]
+
+W_wgroup = W_w + W_mg + W_p
+xcg_wgroup = (xcg_w*W_w + xcg_mg*W_mg + xcg_p*W_p)/(W_w + W_mg + W_p)
+xcg_wgroup_mac = (xcg_wgroup - l_leadingedge)/MAC
+
+# Fuselage group; fuselage, horizontal tailplane, vertical tailplane, nose gear
 
 xcg_f = 15 # [m]
 W_f = 0.248*MTOW # [kg]
@@ -22,14 +36,12 @@ W_h = 0.018*MTOW # [kg]
 xcg_v = 25 # [m]
 W_v = 0.02*MTOW # [kg]
 
-xcg_mg = 17 # [m]
-W_mg = 0.035*MTOW #[kg]
-
 xcg_ng = 3 # [m]
 W_ng = 0.005*MTOW # [kg]
 
-xcg_p = 13 # [m]
-W_p = 0.103*MTOW # [kg]
+W_fgegroup = W_f + W_h + W_v + W_ng
+xcg_fgroup = (xcg_f*W_f + xcg_h*W_h + xcg_v*W_v + xcg_ng*W_ng)/(W_f + W_h + W_v + W_ng)
+xcg_fgroup_mac = (xcg_fgroup - l_leadingedge)/MAC
 
 # Variable weights
 
@@ -42,6 +54,7 @@ W_2pass = 160 # [kg]
 # x_c.g. calculation
 
 xcgOEW = (xcg_w*W_w + xcg_f*W_f + xcg_h*W_h + xcg_v*W_v + xcg_mg*W_mg + xcg_ng*W_ng + xcg_p*W_p)/(W_w + W_f + W_h + W_v + W_mg + W_ng + W_p)
+xcgOEWmac = (xcgOEW - l_leadingedge)/MAC
 W_fixed = W_w + W_f + W_h + W_v + W_mg + W_ng + W_p
 
 def cargoback(W_fixed, xcgOEW):
@@ -179,4 +192,23 @@ plt.plot(xcg_passforwardaisle, W_passforwardaisle)
 plt.plot(xcg_passbackaisle, W_passbackaisle)
 plt.plot(xcg_fueltotal, W_fueltotal)
 plt.show()
+
+
+# Stick-fixed static stability diagram
+
+# CLah = 1.1
+# CLAh = 1.2
+# deda = 1.1
+# lh = 10
+# c = 2.5
+# Vh = 100
+# V = 110
+# xac = 5
+#
+# ShS = xcg_fueltotal[1]/(CLah*(1-deda)*lh*(Vh/V)*(Vh/V)/(CLAh*c)) - (xac-0.05)/(CLah*(1-deda)*lh*(Vh/V)*(Vh/V)/(CLAh*c))
+#
+# plt.plot(xcg_fueltotal, (ShS))
+# plt.show()
+
+
 
