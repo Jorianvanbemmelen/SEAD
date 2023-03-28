@@ -1,10 +1,6 @@
 
-
 import numpy as np
-import control
-from math import *
 import matplotlib.pyplot as plt
-
 
 MTOW = 23000  # [kg] Maximum take off weight
 MZFW = 21000  # [kg] Maximum zero fuel weight
@@ -27,9 +23,9 @@ xcg_ng = 3  # [m]
 W_ng = 0.005*MTOW  # [kg]
 
 xcg_cf = 5  # [m]
-W_cargof = 600 # [kg]
+W_cargof = 700 # [kg]
 xcg_cb = 22  # [m]
-W_cargob = 600 # [kg]
+W_cargob = 700 # [kg]
 
 seat_pitch = 0.7366  # [m]
 xcg_frontpass = 6  # [m]
@@ -68,10 +64,6 @@ W_fixed = W_w + W_f + W_h + W_v + W_mg + W_ng + W_p
 xcgMTOW = (xcg_w*W_w + xcg_f*W_f + xcg_h*W_h + xcg_v*W_v + xcg_mg*W_mg + xcg_ng*W_ng + xcg_p*W_p + xcg_fuel*W_fuel + xcg_cf*W_cargof + xcg_cb*W_cargob + (xcg_backpass + xcg_frontpass)*n_rows*W_2pass)/(W_w + W_f + W_h + W_v + W_mg + W_ng + W_p + W_fuel + W_cargof + W_cargob + n_rows*2*W_2pass) # [m]
 xcgMTOWmac = (xcgOEW - x_leadingedge)/MAC  # [MAC]
 W_MTOW = W_w + W_f + W_h + W_v + W_mg + W_ng + W_p + W_cargof + W_cargob + n_rows*2*W_2pass + W_fuel
-
-# For calculations
-# xcg_frontpass = 6 - seat_pitch  # [m]
-# xcg_backpass = xcg_frontpass + (n_rows-1)*seat_pitch + seat_pitch  # [m]
 
 def cargoback(W_fixed, xcgOEW):
     W_old = W_fixed
