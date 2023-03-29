@@ -22,9 +22,9 @@ W_v = 0.02*MTOW  # [kg]
 xcg_ng = 3  # [m]
 W_ng = 0.005*MTOW  # [kg]
 
-xcg_cf = 5  # [m]
+xcg_cf = 4.6  # [m]
 W_cargof = 700 # [kg]
-xcg_cb = 22  # [m]
+xcg_cb = 22.9  # [m]
 W_cargob = 700 # [kg]
 
 seat_pitch = 0.7366  # [m]
@@ -68,8 +68,8 @@ W_MTOW = W_w + W_f + W_h + W_v + W_mg + W_ng + W_p + W_cargof + W_cargob + n_row
 def cargoback(W_fixed, xcgOEW):
     W_old = W_fixed
     xcg_old = xcgOEWmac
-    xcg_cargob = (26 - x_leadingedge)/MAC # [m]
-    xcg_cargof = (4 - x_leadingedge)/MAC # [m]
+    xcg_cargob = (xcg_cb - x_leadingedge)/MAC # [m]
+    xcg_cargof = (xcg_cf - x_leadingedge)/MAC # [m]
     xcg_carback = [xcg_old]
     W_carback = [W_old]
     xcg_carb = (W_old*xcg_old + W_cargob*xcg_cargob)/(W_old + W_cargob)
@@ -87,8 +87,8 @@ xcg_carback, W_carback = cargoback(W_fixed, xcgOEW)
 def cargofront(W_fixed, xcgOEW):
     W_old = W_fixed
     xcg_old = xcgOEWmac
-    xcg_cargob = (26 - x_leadingedge)/MAC  # [m]
-    xcg_cargof = (4 - x_leadingedge)/MAC  # [m]
+    xcg_cargob = (xcg_cb - x_leadingedge)/MAC  # [m]
+    xcg_cargof = (xcg_cf - x_leadingedge)/MAC  # [m]
     xcg_carfront = [xcg_old]
     W_carfront = [W_old]
     xcg_carf = (W_old*xcg_old + W_cargof*xcg_cargof)/(W_old + W_cargof)
@@ -205,16 +205,20 @@ plt.show()
 
 # Stick-fixed static stability diagram
 
+S = 61.0/(MAC*MAC)
+Snet = (61.0 - 8.94)/(MAC*MAC)  # approsimately
+b = 27.05  # [m]
+AR = b**2/S
+bh = 8  # [m] approximately
 CLah = 3.5  # CLah : the higher, the more stable.
 CL_alpha_Ah = 2.0  # the higher, the less stable.
-deda = 0.4  # de/ da: the higher, the less stable.
+deda = 4/(AR + 2)  # de/ da: the higher, the less stable.
 lh = 10/MAC  # lh: the higher, the more stable.
 c = 1
 Vh = 138.89/MAC
 V = 138.89/MAC  # Vh/V: the higher, the more stable.
 VhV = Vh/V
 xac = (13 - x_leadingedge)/MAC
-S = 61.0/(MAC*MAC)
 
 # Stability curve
 

@@ -33,7 +33,7 @@ xcg_batt = (xcg_cargob*800 + xcg_cargof*400)/(800 + 400)  # 1200 kg increase
 
 seat_pitch = 0.7366  # [m]
 xcg_frontpass = 6  # [m]
-n_rows = 18
+n_rows = 17
 xcg_backpass = xcg_frontpass + (n_rows-1)*seat_pitch  # [m]
 W_2pass = 160  # [kg]
 
@@ -222,16 +222,20 @@ plt.show()
 
 # Stick-fixed static stability diagram
 
+S = 61.0/(MAC*MAC)
+Snet = (61.0 - 8.94)/(MAC*MAC)  # approsimately
+b = 27.05  # [m]
+AR = b**2/S
+bh = 8  # [m] approximately
 CLah = 3.5  # CLah : the higher, the more stable.
 CL_alpha_Ah = 2.0  # the higher, the less stable.
-deda = 0.4  # de/ da: the higher, the less stable.
+deda = 4/(AR + 2)  # de/ da: the higher, the less stable.
 lh = 10/MAC  # lh: the higher, the more stable.
 c = 1
 Vh = 138.89/MAC
 V = 138.89/MAC  # Vh/V: the higher, the more stable.
 VhV = Vh/V
 xac = (13 - x_leadingedge)/MAC
-S = 61.0/(MAC*MAC)
 
 # Stability curve
 
