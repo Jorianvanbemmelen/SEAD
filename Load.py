@@ -1,6 +1,8 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import math
+from math import *
 
 MTOW = 23000  # [kg] Maximum take off weight
 MZFW = 21000  # [kg] Maximum zero fuel weight
@@ -210,25 +212,37 @@ Snet = (61.0 - 8.94)/(MAC*MAC)  # approsimately
 b = 27.05  # [m]
 AR = b**2/S
 bh = 8  # [m] approximately
-CLah = 1.2  # CLah : the higher, the more stable.
-CL_alpha_Ah = 3.0  # the higher, the less stable.
+Sh = 13  # [m] approximately
+ARh = bh**2/Sh
+bf = 2.64 # [m] fuselage diameter estimate
+
 deda = 4/(AR + 2)  # de/ da: the higher, the less stable.
 lh = 13.5/MAC  # lh: the higher, the more stable.
 c = 1
 Vh = 138.89/MAC
 V = 138.89/MAC  # Vh/V: the higher, the more stable.
 VhV = Vh/V
+M = V/343
+beta = sqrt(1-M**2)
+eta = 0.95  # efficiency factor estimate
+Delta_halfC = 2*pi/180  # half cord sweep in rad
+Delta_halfCh = 3*pi/180  # half cord sweep tail in rad
 xac = (xcg_w - x_leadingedge)/MAC
+
+CL_alpha_h = 2*pi*ARh/(2 + sqrt(4 + (ARh*beta/eta)**2 * (1 + tan(Delta_halfCh)**2/beta**2)))
+CL_alpha = 2*pi*AR/(2 + sqrt(4 + (AR*beta/eta)**2 * (1 + tan(Delta_halfC)**2/beta**2)))
+CL_alpha_Ah = CL_alpha_h*(1 + 2.15*bf/b)*Snet/S + pi*bf**2/(2*S)
 
 # Stability curve
 
 x_cg = np.linspace(0, 1, 2)
-ShS_stable = x_cg/(CLah*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c)) - (xac-0.05)/(CLah*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c))
-ShS_limit = x_cg/(CLah*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c)) - xac/(CLah*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c))
+ShS_stable = x_cg/(CL_alpha_h*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c)) - (xac-0.05)/(CL_alpha_h*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c))
+ShS_limit = x_cg/(CL_alpha_h*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c)) - xac/(CL_alpha_h*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c))
 
 # Control curve
 
 # CLh = -0.5  # Controllable
+Cmac_w =
 Cmac = -0.6  # not controllable
 CLAh = 1.5  # not controllable
 
