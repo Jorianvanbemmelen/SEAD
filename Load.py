@@ -10,22 +10,22 @@ x_leadingedge = 11.23 # [m]
 
 # Fuselage group; fuselage, horizontal tailplane, vertical tailplane, nose gear
 
-xcg_f = 13  # [m]
+xcg_f = 11.5  # [m]
 W_f = 0.248*MTOW  # [kg]
 
-xcg_h = 25  # [m]
+xcg_h = 25.6  # [m]
 W_h = 0.018*MTOW  # [kg]
 
 xcg_v = 25  # [m]
 W_v = 0.02*MTOW  # [kg]
 
-xcg_ng = 3  # [m]
+xcg_ng = 1.664  # [m]
 W_ng = 0.005*MTOW  # [kg]
 
 xcg_cf = 4.6  # [m]
-W_cargof = 700 # [kg]
+W_cargof = 600 # [kg]
 xcg_cb = 22.9  # [m]
-W_cargob = 700 # [kg]
+W_cargob = 600 # [kg]
 
 seat_pitch = 0.7366  # [m]
 xcg_frontpass = 6  # [m]
@@ -39,13 +39,13 @@ xcg_fgroup_mac = (xcg_fgroup - x_leadingedge)/MAC  # [MAC]
 
 # Wing group, wing, main landing gear, propulsion
 
-xcg_w = 14  # [m]
+xcg_w = 12.15  # [m] approximately
 W_w = 0.149*MTOW  # [kg]
 
-xcg_mg = xcg_w + 3  # [m]
+xcg_mg = 12.434  # [m]
 W_mg = 0.035*MTOW  #[kg]
 
-xcg_p = xcg_w - 1  # [m]
+xcg_p = xcg_w - 2.0  # [m]
 W_p = 0.103*MTOW  # [kg]
 
 xcg_fuel = xcg_w
@@ -210,26 +210,26 @@ Snet = (61.0 - 8.94)/(MAC*MAC)  # approsimately
 b = 27.05  # [m]
 AR = b**2/S
 bh = 8  # [m] approximately
-CLah = 3.5  # CLah : the higher, the more stable.
-CL_alpha_Ah = 2.0  # the higher, the less stable.
+CLah = 1.2  # CLah : the higher, the more stable.
+CL_alpha_Ah = 3.0  # the higher, the less stable.
 deda = 4/(AR + 2)  # de/ da: the higher, the less stable.
-lh = 10/MAC  # lh: the higher, the more stable.
+lh = 13.5/MAC  # lh: the higher, the more stable.
 c = 1
 Vh = 138.89/MAC
 V = 138.89/MAC  # Vh/V: the higher, the more stable.
 VhV = Vh/V
-xac = (13 - x_leadingedge)/MAC
+xac = (xcg_w - x_leadingedge)/MAC
 
 # Stability curve
 
-x_cg = np.linspace(0.5, 1.8, 2)
+x_cg = np.linspace(0, 1, 2)
 ShS_stable = x_cg/(CLah*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c)) - (xac-0.05)/(CLah*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c))
 ShS_limit = x_cg/(CLah*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c)) - xac/(CLah*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c))
 
 # Control curve
 
 # CLh = -0.5  # Controllable
-Cmac = -0.8  # not controllable
+Cmac = -0.6  # not controllable
 CLAh = 1.5  # not controllable
 
 Sh = 1
@@ -250,9 +250,8 @@ plt.axvline(xcg_max, color='black')
 plt.axvline(xcg_min, color='black')
 # plt.axvline(xac, color='red')
 # plt.axvline(ShS_control_0, color='blue')
-plt.axhline(y=0, color='black')
+plt.axhline(y=0, color='grey')
 plt.plot(xcg_range, ycg_range)
 plt.show()
-
 
 
