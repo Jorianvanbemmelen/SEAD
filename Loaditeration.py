@@ -52,10 +52,10 @@ W_mg = 0.035*MTOW  #[kg]
 
 xcg_p = xcg_w - 1  # [m]
 W_p = 0.103*MTOW  # [kg]
-W_p_new = 0.103*MTOW - 660 # [kg]
+W_p_new = 0.103*MTOW # - 660 # [kg]
 
 xcg_fuel = xcg_w
-W_fuel = MTOW - (W_fgroup + W_w + W_mg + W_p_new)
+W_fuel = MTOW - (W_fgroup + W_w + W_mg + W_p_new)  # max fuel load is 5000 - 660
 
 W_wgroup = W_w + W_mg + W_p
 W_wgroup_new = W_w + W_mg + W_p_new
