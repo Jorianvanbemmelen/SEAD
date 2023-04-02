@@ -210,20 +210,21 @@ plt.show()
 # Aircraft fixed parameters
 
 S = 61.0/(MAC*MAC)
-Snet = (61.0 - 8.94)/(MAC*MAC)# approsimately
+Snet = (61.0 - 8.94)/(MAC*MAC) # approximately
 b = 27.05/MAC  # [m]
 cg = S/b
 AR = b**2/S
 bh = 8.1/MAC  # [m] approximately
-Sh = 12/MAC  # [m] approximately
-ARh = bh**2/Sh
+Sh = 12/(MAC*MAC)  # [m] approximately
+ShS = Sh/S
+ARh = bh**2/Sh  # or 4.4
 bf = 2.64/MAC  # [m] fuselage diameter estimate
-hf = bf/MAC  # [m] fuselage height=diameter estimate
+hf = bf  # [m] fuselage height=diameter estimate
 lf = 27.17/MAC  # [m] fuselage length
 lfn = 11.17/MAC  # [m] distance nose to root LE wing
 taper = 0.60  # c_root/c_tip estimation
-bn = 0.679  # [m] engine diameter wikipedia
-ln = 2.130  # [m] distance front nacelle to 1/4 cord wikipedia
+bn = 0.679/MAC  # [m] engine diameter wikipedia
+ln = 2.130/MAC  # [m] distance front nacelle to 1/4 cord wikipedia
 
 deda = 4/(AR + 2)  # de/ da: the higher, the less stable.
 lh = 13.5/MAC  # lh: the higher, the more stable.
@@ -234,12 +235,14 @@ VhV = Vh/V
 M = V/343
 beta = sqrt(1-M**2)
 eta = 0.95  # efficiency factor
-Delta_halfC = 2*pi/180  # half cord sweep in rad
-Delta_LE =
-Delta_halfCh = 3*pi/180  # half cord sweep tail in rad
-Delta_LEh =
-Delta_quartc =
+Delta_halfC = 0.0  # half cord sweep in rad
+Delta_LE = 0.0
+Delta_quartc = 0.0
+Delta_halfCh = 4.5*pi/180  # half cord sweep tail in rad
+Delta_LEh = 14.0*pi/180
 
+CLh = -0.8  # True value Lift coefficient adjustable tail
+CLAh = 1.5  # Tailless lift coefficient 1.5?
 
 CL_alpha_h = 2*pi*ARh/(2 + sqrt(4 + (ARh*beta/eta)**2 * (1 + tan(Delta_halfCh)**2/beta**2)))
 CL_alpha = 2*pi*AR/(2 + sqrt(4 + (AR*beta/eta)**2 * (1 + tan(Delta_halfC)**2/beta**2)))
@@ -250,7 +253,17 @@ xac_w = 0.25  # from lecture 7 slide 34
 xac_f1 = -1.8*bf*hf*lfn/(CL_alpha_Ah*S*c)
 xac_f2 = 0.273*bf*cg*(b-bf)*tan(Delta_quartc)/((1+taper)*c**2*(b+2.15*bf))
 xac_n = -8.0*bn**2*ln*CL_alpha/(S*c*CL_alpha_Ah)
-xac = (xac_w + xac_f1 + xac_f2 + xac_n - x_leadingedge/MAC)  # tailless aircraft
+xac = xac_w + xac_f1 + xac_f2 + xac_n # - x_leadingedge/MAC  # tailless aircraft
+
+# Cmac_w =
+# Cm0_airfoil =   # Zero aoa moment coefficient
+# CL_0_landing =   # Lift coefficient aircraft zero aoa, landing config
+# Cmacw = Cm0_airfoil*(AR*cos(Delta_LE)**2)/(AR+2*cos(Delta_LE))
+# delta_flap =
+# delta_fus = -1.8*(1 - 2.5*bf/lf)*pi*bf*hf*lf*CL_0_landing/(4*S*c*CL_alpha_Ah)
+# delta_nac =
+# # Cmac = Cmacw + delta_flap + delta_fus + delta_nac
+Cmac = CLh*Sh*lh/(S*c) - CLAh*(xcg_fueltotal[-1] - xac)/c
 
 # Stability curve
 
@@ -260,30 +273,16 @@ ShS_limit = x_cg/(CL_alpha_h*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c)) - xac/(CL_alpha
 
 # Control curve
 
-CLh = -0.8  # True value
-# Cmac_w =
-Cm0_airfoil =
-CL_0_landing =
-delta_flap =
-delta_fus = -1.8*(1 - 2.5*bf/lf)*pi*bf*hf*lf*CL_0_landing/(4*S*c*CL_alpha_Ah)
-delta_nac =
-# Cmac = -0.6  # not controllable
-
-Cmacw = Cm0_airfoil*(AR*cos(Delta_LE)**2)/(AR+2*cos(Delta_LE))
-Cmac = Cmacw + delta_flap + delta_fus + delta_nac
-
-CLAh = 1.5  # Lift coefficient
-
-Sh = 1
-ShS = Sh/S
-# CLh = (Cmac + CLAh*(xcg_fueltotal[-1] - xac)/c)*c/(ShS*lh)
+# CLh = (Cmac + CLAh*(xcg_fueltotal[-1] - xac)/c)*c/(ShS*lh)  #
 ShS_control = x_cg/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac)/(CLh*lh*VhV**2/(CLAh*c))
 ShS_control_0 = xac - Cmac/CLAh
-
 ShS_control_min = xcg_min/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac)/(CLh*lh*VhV**2/(CLAh*c))
 
+# Sh/S - x_cg range plot
 xcg_range = np.linspace(xcg_min, xcg_max, 2)
+xcg_range2 = np.linspace(0, 1, 2)
 ycg_range = [ShS_control_min, ShS_control_min]
+ycg_range2 = [ShS, ShS]
 
 plt.plot(x_cg, ShS_stable)
 plt.plot(x_cg, ShS_limit)
@@ -294,6 +293,7 @@ plt.axvline(xcg_min, color='black')
 # plt.axvline(ShS_control_0, color='blue')
 plt.axhline(y=0, color='grey')
 plt.plot(xcg_range, ycg_range)
+plt.plot(xcg_range2, ycg_range2)  # Actual Sh/S value
 plt.show()
 
 
