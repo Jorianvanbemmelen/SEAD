@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 MTOW = 23000  # [kg] Maximum take off weight
 MZFW = 21000  # [kg] Maximum zero fuel weight
 OEW = 13600  # [kg] Operational empty weight
-MAC = 2.5  # [m]
+MAC = 2.37  # [m]
 x_leadingedge = 11.23 # [m]
 
 # Fuselage group; fuselage, horizontal tailplane, vertical tailplane, nose gear

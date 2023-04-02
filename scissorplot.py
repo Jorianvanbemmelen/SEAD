@@ -5,22 +5,26 @@ import matplotlib.pyplot as plt
 MTOW = 23000  # [kg] Maximum take off weight
 MZFW = 21000  # [kg] Maximum zero fuel weight
 OEW = 13600  # [kg] Operational empty weight
-MAC = 2.5  # [m]
+MAC = 2.37  # [m]
 x_leadingedge = 11.23 # [m]
 
 # Fuselage group; fuselage, horizontal tailplane, vertical tailplane, nose gear
 
 xcg_f = 11.5  # [m]
 W_f = 0.248*MTOW  # [kg]
+print(f'Fuselage: {W_f} kg, {(xcg_f - x_leadingedge) / MAC * 100} %MAC')
 
 xcg_h = 25.6  # [m]
 W_h = 0.018*MTOW  # [kg]
+print(f'Horizontal Tail: {W_h} kg, {(xcg_h - x_leadingedge) / MAC * 100} %MAC')
 
 xcg_v = 25  # [m]
 W_v = 0.02*MTOW  # [kg]
+print(f'Vertical Tail: {W_v} kg, {(xcg_v - x_leadingedge) / MAC * 100} %MAC')
 
 xcg_ng = 1.664  # [m]
 W_ng = 0.005*MTOW  # [kg]
+print(f'Nose Gear: {W_ng} kg, {(xcg_ng - x_leadingedge) / MAC * 100} %MAC')
 
 xcg_cf = 4.6  # [m]
 W_cargof = 600 # [kg]
@@ -37,28 +41,47 @@ W_fgroup = W_f + W_h + W_v + W_ng + W_cargof + W_cargob + (n_rows)*2*W_2pass
 xcg_fgroup = (xcg_f*W_f + xcg_h*W_h + xcg_v*W_v + xcg_ng*W_ng + xcg_cf*W_cargof + xcg_cb*W_cargob + (xcg_backpass + xcg_frontpass)*n_rows*W_2pass)/(W_f + W_h + W_v + W_ng + W_cargof + W_cargob + n_rows*2*W_2pass)  # [m]
 xcg_fgroup_mac = (xcg_fgroup - x_leadingedge)/MAC  # [MAC]
 
+W_fgroup_no_cargo = W_f + W_h + W_v + W_ng
+xcg_fgroup_no_cargo = (xcg_f*W_f + xcg_h*W_h + xcg_v*W_v + xcg_ng*W_ng)/(W_f + W_h + W_v + W_ng)  # [m]
+xcg_fgroup_no_cargo_mac = (xcg_fgroup_no_cargo - x_leadingedge)/MAC  # [MAC]
+
+print(f'Fuselage group: W = {W_fgroup_no_cargo} kg, X_cg = {xcg_fgroup_no_cargo} m, or {xcg_fgroup_no_cargo_mac * 100} %MAC')
+
 # Wing group, wing, main landing gear, propulsion
 
 xcg_w = 12.15  # [m] approximately
 W_w = 0.149*MTOW  # [kg]
+print(f'Wing: {W_w} kg, {(xcg_w - x_leadingedge) / MAC * 100} %MAC')
 
 xcg_mg = 12.434  # [m]
 W_mg = 0.035*MTOW  #[kg]
+print(f'Main Gear: {W_mg} kg, {(xcg_mg - x_leadingedge) / MAC * 100} %MAC')
 
 xcg_p = xcg_w - 2.0  # [m]
 W_p = 0.103*MTOW  # [kg]
+print(f'Propulsion: {W_p} kg, {(xcg_p - x_leadingedge) / MAC * 100} %MAC')
 
 xcg_fuel = xcg_w
 W_fuel = MTOW - (W_fgroup + W_w + W_mg + W_p)
+print(f'W_fuel: {W_fuel}')
 
 W_wgroup = W_w + W_mg + W_p + W_fuel
-xcg_wgroup = (xcg_w*W_w + xcg_mg*W_mg + xcg_p*W_p + xcg_fuel*W_fuel)/(W_w + W_mg + W_p + W_fuel) # [m]
+xcg_wgroup = (xcg_w*W_w + xcg_mg*W_mg + xcg_p*W_p + xcg_fuel*W_fuel) / (W_w + W_mg + W_p + W_fuel) # [m]
 xcg_wgroup_mac = (xcg_wgroup - x_leadingedge)/MAC # [MAC]
+
+W_wgroup_no_fuel = W_w + W_mg + W_p
+xcg_wgroup_no_fuel = (xcg_w*W_w + xcg_mg*W_mg + xcg_p*W_p) / (W_w + W_mg + W_p) # [m]
+xcg_wgroup_no_fuel_mac = (xcg_wgroup_no_fuel - x_leadingedge) / MAC # [MAC]
+
+print(f'Wing group: W = {W_wgroup_no_fuel} kg, X_cg = {xcg_wgroup_no_fuel} m, or {xcg_wgroup_no_fuel_mac * 100} %MAC')
 
 # x_c.g calculation
 
 xcgOEW = (xcg_w*W_w + xcg_f*W_f + xcg_h*W_h + xcg_v*W_v + xcg_mg*W_mg + xcg_ng*W_ng + xcg_p*W_p)/(W_w + W_f + W_h + W_v + W_mg + W_ng + W_p) # [m]
 xcgOEWmac = (xcgOEW - x_leadingedge)/MAC  # [MAC]
+
+print(f'Operational Empty: W = {W_fgroup_no_cargo + W_wgroup_no_fuel} kg, X_cg = {xcgOEW} m, or {xcgOEWmac * 100} %MAC')
+
 W_fixed = W_w + W_f + W_h + W_v + W_mg + W_ng + W_p
 
 xcgMTOW = (xcg_w*W_w + xcg_f*W_f + xcg_h*W_h + xcg_v*W_v + xcg_mg*W_mg + xcg_ng*W_ng + xcg_p*W_p + xcg_fuel*W_fuel + xcg_cf*W_cargof + xcg_cb*W_cargob + (xcg_backpass + xcg_frontpass)*n_rows*W_2pass)/(W_w + W_f + W_h + W_v + W_mg + W_ng + W_p + W_fuel + W_cargof + W_cargob + n_rows*2*W_2pass) # [m]
@@ -222,7 +245,7 @@ xac_w = (xcg_w - x_leadingedge)/MAC #this is (Xac)w not Xac for tailless aircraf
 xac_f1 = 1 #opvulling hier zijn formules voor
 xac_f2 = 1 #opvulling
 xac_n = 1 #opvulling
-xac = xac_w + xac_f1 + xacf2 +xacn
+xac = xac_w + xac_f1 + xac_f2 +xac_n
 # Stability curve
 
 x_cg = np.linspace(0, 1, 2)

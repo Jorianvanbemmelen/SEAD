@@ -2,14 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 MTOW = 23000    # Maximum Take-Off Weight [kg]
-OEW = 13500     # Operational Empty Weight [kg]
-PW = 7400       # Max Payload Weight [kg]
-FW = 5000       # Max Fuel Weight [kg]
+OEW = 13450     # Operational Empty Weight [kg]
+PW = 7550       # Max Payload Weight [kg]
+FW = 2000       # Fuel Weight Using MTOW - MZFW [kg]
 
 Ws = [OEW, PW, FW]
 Wlabels = ['Operational Empty Weight', 'Payload Weight', 'Fuel Weight']
 
 fig, ax = plt.subplots(figsize=(8, 3), subplot_kw=dict(aspect='equal'))
+
+print(sum(Ws))
 
 def label(pct, allvals):
     absolute = int(np.round(pct/100.*np.sum(allvals)))
