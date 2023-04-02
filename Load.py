@@ -7,6 +7,7 @@ print('test')
 MTOW = 23000  # [kg] Maximum take off weight
 MZFW = 21000  # [kg] Maximum zero fuel weight
 OEW = 13600  # [kg] Operational empty weight
+
 MAC = 2.37  # [m]
 x_leadingedge = 11.23 # [m]
 
@@ -25,9 +26,9 @@ xcg_ng = 1.664  # [m]
 W_ng = 0.005*MTOW  # [kg]
 
 xcg_cf = 4.6  # [m]
-W_cargof = 600 # [kg]
+W_cargof = 200 # [kg]
 xcg_cb = 22.9  # [m]
-W_cargob = 600 # [kg]
+W_cargob = 200 # [kg]
 
 seat_pitch = 0.7366  # [m]
 xcg_frontpass = 6  # [m]
@@ -67,7 +68,7 @@ xcgMTOW = (xcg_w*W_w + xcg_f*W_f + xcg_h*W_h + xcg_v*W_v + xcg_mg*W_mg + xcg_ng*
 xcgMTOWmac = (xcgOEW - x_leadingedge)/MAC  # [MAC]
 W_MTOW = W_w + W_f + W_h + W_v + W_mg + W_ng + W_p + W_cargof + W_cargob + n_rows*2*W_2pass + W_fuel
 
-def cargoback(W_fixed, xcgOEW):
+def cargoback(W_fixed, xcgOEWmac):
     W_old = W_fixed
     xcg_old = xcgOEWmac
     xcg_cargob = (xcg_cb - x_leadingedge)/MAC # [m]
@@ -84,9 +85,9 @@ def cargoback(W_fixed, xcgOEW):
     W_carback.append(W_carf)
     return xcg_carback, W_carback
 
-xcg_carback, W_carback = cargoback(W_fixed, xcgOEW)
+xcg_carback, W_carback = cargoback(W_fixed, xcgOEWmac)
 
-def cargofront(W_fixed, xcgOEW):
+def cargofront(W_fixed, xcgOEWmac):
     W_old = W_fixed
     xcg_old = xcgOEWmac
     xcg_cargob = (xcg_cb - x_leadingedge)/MAC  # [m]
@@ -103,7 +104,7 @@ def cargofront(W_fixed, xcgOEW):
     W_carfront.append(W_carb)
     return xcg_carfront, W_carfront
 
-xcg_carfront, W_carfront = cargofront(W_fixed, xcgOEW)
+xcg_carfront, W_carfront = cargofront(W_fixed, xcgOEWmac)
 
 def passforwardwindow(W_carback, xcg_carback, W_2pass, seat_pitch):
     # print(W_carback)
@@ -273,7 +274,6 @@ ShS_limit = x_cg/(CL_alpha_h*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c)) - xac/(CL_alpha
 
 # Control curve
 
-# CLh = (Cmac + CLAh*(xcg_fueltotal[-1] - xac)/c)*c/(ShS*lh)  #
 ShS_control = x_cg/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac)/(CLh*lh*VhV**2/(CLAh*c))
 ShS_control_0 = xac - Cmac/CLAh
 ShS_control_min = xcg_min/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac)/(CLh*lh*VhV**2/(CLAh*c))
