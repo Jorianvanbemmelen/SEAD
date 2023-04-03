@@ -1,92 +1,75 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from math import *
+from Load import *
 
 MTOW = 23000  # [kg] Maximum take off weight
 MZFW = 21000  # [kg] Maximum zero fuel weight
 OEW = 13600  # [kg] Operational empty weight
+
 MAC = 2.37  # [m]
 x_leadingedge = 11.23 # [m]
 
 # Fuselage group; fuselage, horizontal tailplane, vertical tailplane, nose gear
 
-xcg_f = 13  # [m]
+xcg_f = 12.9  # [m] old 11.5
+xcg_f = xcg_f - 0.9
 W_f = 0.248*MTOW  # [kg]
 W_f_new = 1.02*W_f  # [kg] 460 kg increase
 
-xcg_h = 25  # [m]
 W_h = 0.018*MTOW  # [kg]
 
-xcg_v = 25  # [m]
 W_v = 0.02*MTOW  # [kg]
 
-xcg_ng = 3  # [m]
 W_ng = 0.005*MTOW  # [kg]
 
-xcg_cargof = 5  # [m]
-W_cargof = 700 # [kg]
-xcg_cargob = 22  # [m]
-W_cargob = 700 # [kg]
-
-W_batt = 1200  # [kg]
-xcg_batt = (xcg_cargob*800 + xcg_cargof*400)/(800 + 400)  # 1200 kg increase
+W_cargof = 300 # [kg]
+W_cargob = 330 # [kg]
 
 seat_pitch = 0.7366  # [m]
 xcg_frontpass = 6  # [m]
-n_rows = 17
+n_rows = 16
 xcg_backpass = xcg_frontpass + (n_rows-1)*seat_pitch  # [m]
 W_2pass = 160  # [kg]
 
+W_batt = 1200  # [kg]
+xcg_batt = (xcg_cb*800 + xcg_cf*400)/(800 + 400)  # 1200 kg increase
+
 # Not really important:
 W_fgroup = W_f_new + W_h + W_v + W_ng + W_cargof + W_cargob + (n_rows)*2*W_2pass + W_batt
-xcg_fgroup = (xcg_f*W_f_new + xcg_h*W_h + xcg_v*W_v + xcg_ng*W_ng + xcg_cargof*W_cargof + xcg_cargob*W_cargob + (xcg_backpass + xcg_frontpass)*n_rows*W_2pass + xcg_batt*W_batt)/(W_f + W_h + W_v + W_ng + W_cargof + W_cargob + n_rows*2*W_2pass + W_batt)  # [m]
+xcg_fgroup = (xcg_f*W_f_new + xcg_h*W_h + xcg_v*W_v + xcg_ng*W_ng + xcg_cf*W_cargof + xcg_cb*W_cargob + (xcg_backpass + xcg_frontpass)*n_rows*W_2pass + xcg_batt*W_batt)/(W_f + W_h + W_v + W_ng + W_cargof + W_cargob + n_rows*2*W_2pass + W_batt)  # [m]
 xcg_fgroup_mac = (xcg_fgroup - x_leadingedge)/MAC  # [MAC]
 
 # Wing group, wing, main landing gear, propulsion
 
-xcg_w = 14  # [m]
-W_w = 0.149*MTOW  # [kg]
+W_w = 0.149*MTOW - 660  # [kg]
 
-xcg_mg = xcg_w + 3  # [m]
 W_mg = 0.035*MTOW  #[kg]
 
-xcg_p = xcg_w - 1  # [m]
 W_p = 0.103*MTOW  # [kg]
-W_p_new = 0.103*MTOW # - 660 # [kg]
 
-xcg_fuel = xcg_w
-W_fuel = MTOW - (W_fgroup + W_w + W_mg + W_p_new)  # max fuel load is 5000 - 660
+W_fuel = MTOW - (W_fgroup + W_w + W_mg + W_p)
 
-W_wgroup = W_w + W_mg + W_p
-W_wgroup_new = W_w + W_mg + W_p_new
-# Not really important:
-xcg_wgroup = (xcg_w*W_w + xcg_mg*W_mg + xcg_p*W_p_new + xcg_fuel*W_fuel)/(W_w + W_mg + W_p_new + W_fuel) # [m]
+W_wgroup = W_w + W_mg + W_p + W_fuel
+xcg_wgroup = (xcg_w*W_w + xcg_mg*W_mg + xcg_p*W_p + xcg_fuel*W_fuel)/(W_w + W_mg + W_p + W_fuel) # [m]
 xcg_wgroup_mac = (xcg_wgroup - x_leadingedge)/MAC # [MAC]
 
-# For calculation
-
-xcg_cargof = (xcg_cargof - x_leadingedge)/MAC  # [-] Cargo front
-xcg_cargob = (xcg_cargob - x_leadingedge)/MAC  # [-] Cargo back
-
 # x_c.g calculation
-
-xcgOEW = (xcg_w*W_w + xcg_f*W_f_new + xcg_h*W_h + xcg_v*W_v + xcg_mg*W_mg + xcg_ng*W_ng + xcg_p*W_p_new + xcg_batt*W_batt)/(W_w + W_f_new + W_h + W_v + W_mg + W_ng + W_p_new + W_batt) # [m]
+xcgOEW = (xcg_w*W_w + xcg_f*W_f_new + xcg_h*W_h + xcg_v*W_v + xcg_mg*W_mg + xcg_ng*W_ng + xcg_p*W_p + xcg_batt*W_batt)/(W_w + W_f_new + W_h + W_v + W_mg + W_ng + W_p + W_batt) # [m]
 xcgOEWmac = (xcgOEW - x_leadingedge)/MAC  # [MAC]
-W_fixed = W_w + W_f_new + W_h + W_v + W_mg + W_ng + W_p_new + W_batt
+W_fixed = W_w + W_f_new + W_h + W_v + W_mg + W_ng + W_p + W_batt
 
-xcgMTOW = (xcg_w*W_w + xcg_f*W_f_new + xcg_h*W_h + xcg_v*W_v + xcg_mg*W_mg + xcg_ng*W_ng + xcg_p*W_p_new + xcg_fuel*W_fuel + xcg_cargof*W_cargof + xcg_cargob*W_cargob + (xcg_backpass + xcg_frontpass)*n_rows*W_2pass + xcg_batt*W_batt)/(W_w + W_f_new + W_h + W_v + W_mg + W_ng + W_p_new + W_fuel + W_cargof + W_cargob + n_rows*2*W_2pass + W_batt)  # [m]
+xcgMTOW = (xcg_w*W_w + xcg_f*W_f_new + xcg_h*W_h + xcg_v*W_v + xcg_mg*W_mg + xcg_ng*W_ng + xcg_p*W_p + xcg_fuel*W_fuel + xcg_cf*W_cargof + xcg_cb*W_cargob + (xcg_backpass + xcg_frontpass)*n_rows*W_2pass + xcg_batt*W_batt)/(W_w + W_f_new + W_h + W_v + W_mg + W_ng + W_p + W_fuel + W_cargof + W_cargob + n_rows*2*W_2pass + W_batt)  # [m]
 xcgMTOWmac = (xcgOEW - x_leadingedge)/MAC  # [MAC]
-W_MTOW = W_w + W_f_new + W_h + W_v + W_mg + W_ng + W_p_new + W_cargof + W_cargob + n_rows*2*W_2pass + W_fuel + W_batt
+W_MTOW = W_w + W_f_new + W_h + W_v + W_mg + W_ng + W_p + W_cargof + W_cargob + n_rows*2*W_2pass + W_fuel + W_batt
 
-# For calculations
-# xcg_frontpass = 6 - seat_pitch  # [m]
-# xcg_backpass = xcg_frontpass + (n_rows-1)*seat_pitch + seat_pitch  # [m]
 
-def cargoback(W_fixed, xcgOEW):
+def cargoback(W_fixed, xcgOEWmac):
     W_old = W_fixed
     xcg_old = xcgOEWmac
-    xcg_cargob = (26 - x_leadingedge)/MAC # [m]
-    xcg_cargof = (4 - x_leadingedge)/MAC # [m]
+    xcg_cargob = (xcg_cb - x_leadingedge)/MAC # [m]
+    xcg_cargof = (xcg_cf - x_leadingedge)/MAC # [m]
     xcg_carback = [xcg_old]
     W_carback = [W_old]
     xcg_carb = (W_old*xcg_old + W_cargob*xcg_cargob)/(W_old + W_cargob)
@@ -99,13 +82,13 @@ def cargoback(W_fixed, xcgOEW):
     W_carback.append(W_carf)
     return xcg_carback, W_carback
 
-xcg_carback, W_carback = cargoback(W_fixed, xcgOEW)
+xcg_carback, W_carback = cargoback(W_fixed, xcgOEWmac)
 
-def cargofront(W_fixed, xcgOEW):
+def cargofront(W_fixed, xcgOEWmac):
     W_old = W_fixed
     xcg_old = xcgOEWmac
-    xcg_cargob = (26 - x_leadingedge)/MAC  # [m]
-    xcg_cargof = (4 - x_leadingedge)/MAC  # [m]
+    xcg_cargob = (xcg_cb - x_leadingedge)/MAC  # [m]
+    xcg_cargof = (xcg_cf - x_leadingedge)/MAC  # [m]
     xcg_carfront = [xcg_old]
     W_carfront = [W_old]
     xcg_carf = (W_old*xcg_old + W_cargof*xcg_cargof)/(W_old + W_cargof)
@@ -118,7 +101,7 @@ def cargofront(W_fixed, xcgOEW):
     W_carfront.append(W_carb)
     return xcg_carfront, W_carfront
 
-xcg_carfront, W_carfront = cargofront(W_fixed, xcgOEW)
+xcg_carfront, W_carfront = cargofront(W_fixed, xcgOEWmac)
 
 def passforwardwindow(W_carback, xcg_carback, W_2pass, seat_pitch):
     # print(W_carback)
@@ -222,43 +205,44 @@ plt.show()
 
 # Stick-fixed static stability diagram
 
-S = 61.0/(MAC*MAC)
-Snet = (61.0 - 8.94)/(MAC*MAC)  # approsimately
-b = 27.05  # [m]
-AR = b**2/S
-bh = 8  # [m] approximately
-CLah = 3.5  # CLah : the higher, the more stable.
-CL_alpha_Ah = 2.0  # the higher, the less stable.
-deda = 4/(AR + 2)  # de/ da: the higher, the less stable.
-lh = 10/MAC  # lh: the higher, the more stable.
-c = 1
-Vh = 138.89/MAC
-V = 138.89/MAC  # Vh/V: the higher, the more stable.
-VhV = Vh/V
-xac = (13 - x_leadingedge)/MAC
+# Aircraft fixed parameters
+
+b_new = b*sqrt(1.2)
+cg = S/b_new
+AR = b_new**2/S
+
+CL_alpha_h = 2*pi*ARh/(2 + sqrt(4 + (ARh*beta/eta)**2 * (1 + tan(Delta_halfCh)**2/beta**2)))
+CL_alpha = 2*pi*AR/(2 + sqrt(4 + (AR*beta/eta)**2 * (1 + tan(Delta_halfC)**2/beta**2)))
+CL_alpha_Ah = CL_alpha_h*(1 + 2.15*bf/b_new)*Snet/S + pi*bf**2/(2*S)
+
+# Location of aerodynamic center x_ac without tail
+xac_w = 0.25  # from lecture 7 slide 34
+xac_f1 = -1.8*bf*hf*lfn/(CL_alpha_Ah*S*c)
+xac_f2 = 0.273*bf*cg*(b_new-bf)*tan(Delta_quartc)/((1+taper)*c**2*(b_new+2.15*bf))
+xac_n = -8.0*bn**2*ln*CL_alpha/(S*c*CL_alpha_Ah)
+xac = xac_w + xac_f1 + xac_f2 + xac_n # - x_leadingedge/MAC  # tailless aircraft
+
+Cmac = CLh*Sh*lh/(S*c) - CLAh*(xcg_fueltotal[-1] - xac)/c
 
 # Stability curve
 
-x_cg = np.linspace(0.5, 1.8, 2)
-ShS_stable = x_cg/(CLah*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c)) - (xac-0.05)/(CLah*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c))
-ShS_limit = x_cg/(CLah*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c)) - xac/(CLah*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c))
+x_cg = np.linspace(0, 1, 2)
+ShS_stable = x_cg/(CL_alpha_h*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c)) - (xac-0.05)/(CL_alpha_h*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c))
+ShS_limit = x_cg/(CL_alpha_h*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c)) - xac/(CL_alpha_h*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c))
 
 # Control curve
 
-# CLh = -0.5  # Controllable
-Cmac = -0.8  # not controllable
-CLAh = 1.5  # not controllable
-
-Sh = 1
-ShS = Sh/S
-CLh = (Cmac + CLAh*(xcg_fueltotal[-1] - xac)/c)*c/(ShS*lh)
 ShS_control = x_cg/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac)/(CLh*lh*VhV**2/(CLAh*c))
 ShS_control_0 = xac - Cmac/CLAh
-
 ShS_control_min = xcg_min/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac)/(CLh*lh*VhV**2/(CLAh*c))
 
+
+# Sh/S - x_cg range plot
 xcg_range = np.linspace(xcg_min, xcg_max, 2)
+xcg_range2 = np.linspace(0, 1, 2)
 ycg_range = [ShS_control_min, ShS_control_min]
+print("Minimal value Sh/S =", ShS_control_min)
+ycg_range2 = [ShS, ShS]
 
 plt.plot(x_cg, ShS_stable)
 plt.plot(x_cg, ShS_limit)
@@ -267,9 +251,9 @@ plt.axvline(xcg_max, color='black')
 plt.axvline(xcg_min, color='black')
 # plt.axvline(xac, color='red')
 # plt.axvline(ShS_control_0, color='blue')
-plt.axhline(y=0, color='black')
+plt.axhline(y=0, color='grey')
 plt.plot(xcg_range, ycg_range)
+plt.plot(xcg_range2, ycg_range2)  # Actual Sh/S value
 plt.show()
-
 
 

@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from math import *
-print('test')
+
 MTOW = 23000  # [kg] Maximum take off weight
 MZFW = 21000  # [kg] Maximum zero fuel weight
 OEW = 13600  # [kg] Operational empty weight
@@ -13,7 +13,7 @@ x_leadingedge = 11.23 # [m]
 
 # Fuselage group; fuselage, horizontal tailplane, vertical tailplane, nose gear
 
-xcg_f = 11.5  # [m]
+xcg_f = 12.9  # [m] old 11.5
 W_f = 0.248*MTOW  # [kg]
 
 xcg_h = 25.6  # [m]
@@ -26,9 +26,9 @@ xcg_ng = 1.664  # [m]
 W_ng = 0.005*MTOW  # [kg]
 
 xcg_cf = 4.6  # [m]
-W_cargof = 200 # [kg]
+W_cargof = 300 # [kg]
 xcg_cb = 22.9  # [m]
-W_cargob = 200 # [kg]
+W_cargob = 330 # [kg]
 
 seat_pitch = 0.7366  # [m]
 xcg_frontpass = 6  # [m]
@@ -42,10 +42,10 @@ xcg_fgroup_mac = (xcg_fgroup - x_leadingedge)/MAC  # [MAC]
 
 # Wing group, wing, main landing gear, propulsion
 
-xcg_w = 12.15  # [m] approximately
+xcg_w = 11.4  # [m] approximately old 12.15
 W_w = 0.149*MTOW  # [kg]
 
-xcg_mg = 12.434  # [m]
+xcg_mg = 12.1  # [m] old 12.434
 W_mg = 0.035*MTOW  #[kg]
 
 xcg_p = xcg_w - 2.0  # [m]
@@ -278,10 +278,12 @@ ShS_control = x_cg/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac)/(CLh*lh*VhV**2/(
 ShS_control_0 = xac - Cmac/CLAh
 ShS_control_min = xcg_min/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac)/(CLh*lh*VhV**2/(CLAh*c))
 
+
 # Sh/S - x_cg range plot
 xcg_range = np.linspace(xcg_min, xcg_max, 2)
 xcg_range2 = np.linspace(0, 1, 2)
 ycg_range = [ShS_control_min, ShS_control_min]
+print("Minimal value Sh/S =", ShS_control_min)
 ycg_range2 = [ShS, ShS]
 
 plt.plot(x_cg, ShS_stable)
