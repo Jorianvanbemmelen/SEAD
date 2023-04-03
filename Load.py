@@ -196,13 +196,17 @@ xcg_max_list = [max(xcg_carfront), max(xcg_carback), max(xcg_passforward), max(x
 xcg_min = min(xcg_min_list)
 xcg_max = max(xcg_max_list)
 
-plt.plot(xcg_carfront, W_carfront)
-plt.plot(xcg_carback, W_carback)
-plt.plot(xcg_passforward, W_passforward)
-plt.plot(xcg_passback, W_passback)
-plt.plot(xcg_passforwardaisle, W_passforwardaisle)
-plt.plot(xcg_passbackaisle, W_passbackaisle)
-plt.plot(xcg_fueltotal, W_fueltotal)
+plt.plot(xcg_carfront, W_carfront, label = 'cargo front')
+plt.plot(xcg_carback, W_carback, label = 'cargo back')
+plt.plot(xcg_passforward, W_passforward, label = 'pass W. forward')
+plt.plot(xcg_passback, W_passback, label = 'pass W. back')
+plt.plot(xcg_passforwardaisle, W_passforwardaisle, label = 'pass A. forward')
+plt.plot(xcg_passbackaisle, W_passbackaisle, label = 'pass A. back')
+plt.plot(xcg_fueltotal, W_fueltotal, label = 'fuel')
+plt.xlabel('Xcg w.r.t MAC [m]')
+plt.ylabel('W [kg]')
+plt.title('Loading diagram of the ATR72-600')
+plt.legend()
 plt.show()
 
 
@@ -286,16 +290,20 @@ ycg_range = [ShS_control_min, ShS_control_min]
 print("Minimal value Sh/S =", ShS_control_min)
 ycg_range2 = [ShS, ShS]
 
-plt.plot(x_cg, ShS_stable)
-plt.plot(x_cg, ShS_limit)
-plt.plot(x_cg, ShS_control)
-plt.axvline(xcg_max, color='black')
-plt.axvline(xcg_min, color='black')
+plt.plot(xcg_range, ycg_range, label='cg range')
+plt.plot(xcg_range2, ycg_range2, label='cg range actual Sh/S')  # Actual Sh/S value
+plt.plot(x_cg, ShS_stable, label='ShS stable')
+plt.plot(x_cg, ShS_limit, label='ShS limit')
+plt.plot(x_cg, ShS_control, label='ShS control')
+plt.axvline(xcg_max, color='black' ,label='max Xcg')
+plt.axvline(xcg_min, color='black', label='min Xcg')
 # plt.axvline(xac, color='red')
 # plt.axvline(ShS_control_0, color='blue')
 plt.axhline(y=0, color='grey')
-plt.plot(xcg_range, ycg_range)
-plt.plot(xcg_range2, ycg_range2)  # Actual Sh/S value
+plt.legend(loc = 'upper left')
+plt.ylabel('Sh/S [-]')
+plt.xlabel('Xcg/MAC [-]')
+plt.title('Scissor plot of the ATR72-600')
 plt.show()
 
 
