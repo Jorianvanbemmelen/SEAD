@@ -1,27 +1,15 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from Load import *
 
 MTOW = 23000  # [kg] Maximum take off weight
 MZFW = 21000  # [kg] Maximum zero fuel weight
 OEW = 13600  # [kg] Operational empty weight
-MAC = 2.5  # [m]
-x_leadingedge = 11.23 # [m]
 
 # Fuselage group; fuselage, horizontal tailplane, vertical tailplane, nose gear
 
-xcg_f = 13  # [m]
-W_f = 0.248*MTOW  # [kg]
 W_f_new = 1.02*W_f  # [kg] 460 kg increase
-
-xcg_h = 25  # [m]
-W_h = 0.018*MTOW  # [kg]
-
-xcg_v = 25  # [m]
-W_v = 0.02*MTOW  # [kg]
-
-xcg_ng = 3  # [m]
-W_ng = 0.005*MTOW  # [kg]
 
 xcg_cargof = 5  # [m]
 W_cargof = 700 # [kg]
@@ -31,12 +19,6 @@ W_cargob = 700 # [kg]
 W_batt = 1200  # [kg]
 xcg_batt = (xcg_cargob*800 + xcg_cargof*400)/(800 + 400)  # 1200 kg increase
 
-seat_pitch = 0.7366  # [m]
-xcg_frontpass = 6  # [m]
-n_rows = 17
-xcg_backpass = xcg_frontpass + (n_rows-1)*seat_pitch  # [m]
-W_2pass = 160  # [kg]
-
 # Not really important:
 W_fgroup = W_f_new + W_h + W_v + W_ng + W_cargof + W_cargob + (n_rows)*2*W_2pass + W_batt
 xcg_fgroup = (xcg_f*W_f_new + xcg_h*W_h + xcg_v*W_v + xcg_ng*W_ng + xcg_cargof*W_cargof + xcg_cargob*W_cargob + (xcg_backpass + xcg_frontpass)*n_rows*W_2pass + xcg_batt*W_batt)/(W_f + W_h + W_v + W_ng + W_cargof + W_cargob + n_rows*2*W_2pass + W_batt)  # [m]
@@ -44,13 +26,6 @@ xcg_fgroup_mac = (xcg_fgroup - x_leadingedge)/MAC  # [MAC]
 
 # Wing group, wing, main landing gear, propulsion
 
-xcg_w = 14  # [m]
-W_w = 0.149*MTOW  # [kg]
-
-xcg_mg = xcg_w + 3  # [m]
-W_mg = 0.035*MTOW  #[kg]
-
-xcg_p = xcg_w - 1  # [m]
 W_p = 0.103*MTOW  # [kg]
 W_p_new = 0.103*MTOW # - 660 # [kg]
 
