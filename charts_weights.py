@@ -4,9 +4,11 @@ import matplotlib.pyplot as plt
 MTOW = 23000    # Maximum Take-Off Weight [kg]
 OEW = 13450     # Operational Empty Weight [kg]
 PW = 7550       # Max Payload Weight [kg]
-FW = 2000       # Fuel Weight Using MTOW - MZFW [kg]
+FW = 5000       # Max Fuel Weight [kg]
 
-Ws = [OEW, PW, FW]
+Fuel = 2000     # Fuel Weight Using MTOW - MZFW [kg]
+
+Ws = [OEW, PW, Fuel]
 Wlabels = ['Operational Empty Weight', 'Payload Weight', 'Fuel Weight']
 
 fig, ax = plt.subplots(figsize=(8, 3), subplot_kw=dict(aspect='equal'))
