@@ -290,6 +290,8 @@ ycg_range = [ShS_control_min, ShS_control_min]
 print("Minimal value Sh/S =", ShS_control_min)
 ycg_range2 = [ShS, ShS]
 
+plt.plot(xcg_range, ycg_range, label='cg range')
+plt.plot(xcg_range2, ycg_range2, label='cg range actual Sh/S')  # Actual Sh/S value
 plt.plot(x_cg, ShS_stable, label='ShS stable')
 plt.plot(x_cg, ShS_limit, label='ShS limit')
 plt.plot(x_cg, ShS_control, label='ShS control')
@@ -298,8 +300,6 @@ plt.axvline(xcg_min, color='black', label='min Xcg')
 # plt.axvline(xac, color='red')
 # plt.axvline(ShS_control_0, color='blue')
 plt.axhline(y=0, color='grey')
-plt.plot(xcg_range, ycg_range, label='cg range')
-plt.plot(xcg_range2, ycg_range2, label='cg range actual Sh/S')  # Actual Sh/S value
 plt.legend(loc = 'upper left')
 plt.ylabel('Sh/S [-]')
 plt.xlabel('Xcg/MAC [-]')
