@@ -206,6 +206,8 @@ plt.plot(xcg_fueltotal, W_fueltotal, label = 'fuel')
 plt.xlabel('Xcg w.r.t MAC [m]')
 plt.ylabel('W [kg]')
 plt.title('Loading diagram of the ATR72-600')
+plt.ylim(13000, 24000)
+plt.xlim(0.35, 0.75)
 plt.legend()
 plt.show()
 
@@ -215,7 +217,7 @@ plt.show()
 # Aircraft fixed parameters
 
 S = 61.0/(MAC*MAC)
-Snet = (61.0 - 8.94)/(MAC*MAC) # approximately
+Snet = (S - 8.94)/(MAC*MAC) # approximately
 b = 27.05/MAC  # [m]
 cg = S/b
 AR = b**2/S
@@ -246,8 +248,13 @@ Delta_quartc = 0.0
 Delta_halfCh = 4.5*pi/180  # half cord sweep tail in rad
 Delta_LEh = 14.0*pi/180
 
+W_landing = MZFW * 9.80665
+rho_landing = 1.225 #rho sealevel
+V_approach = 87 #[m/s] just an estimation
+
+
 CLh = -0.8  # True value Lift coefficient adjustable tail
-CLAh = 1.5  # Tailless lift coefficient 1.5?
+CLAh = 2 * W_landing / (rho_landing * S * V_approach**2)  # Tailless lift coefficient 1.5?
 
 CL_alpha_h = 2*pi*ARh/(2 + sqrt(4 + (ARh*beta/eta)**2 * (1 + tan(Delta_halfCh)**2/beta**2)))
 CL_alpha = 2*pi*AR/(2 + sqrt(4 + (AR*beta/eta)**2 * (1 + tan(Delta_halfC)**2/beta**2)))
@@ -259,16 +266,17 @@ xac_f1 = -1.8*bf*hf*lfn/(CL_alpha_Ah*S*c)
 xac_f2 = 0.273*bf*cg*(b-bf)*tan(Delta_quartc)/((1+taper)*c**2*(b+2.15*bf))
 xac_n = -8.0*bn**2*ln*CL_alpha/(S*c*CL_alpha_Ah)
 xac = xac_w + xac_f1 + xac_f2 + xac_n # - x_leadingedge/MAC  # tailless aircraft
+print('X_ac', xac)
 
-# Cmac_w =
-# Cm0_airfoil =   # Zero aoa moment coefficient
-# CL_0_landing =   # Lift coefficient aircraft zero aoa, landing config
-# Cmacw = Cm0_airfoil*(AR*cos(Delta_LE)**2)/(AR+2*cos(Delta_LE))
-# delta_flap =
-# delta_fus = -1.8*(1 - 2.5*bf/lf)*pi*bf*hf*lf*CL_0_landing/(4*S*c*CL_alpha_Ah)
-# delta_nac =
-# # Cmac = Cmacw + delta_flap + delta_fus + delta_nac
-Cmac = CLh*Sh*lh/(S*c) - CLAh*(xcg_fueltotal[-1] - xac)/c
+Cm0_airfoil =  -0.03  #ESTMATED Zero aoa moment coefficient
+CL_0_landing =   # Lift coefficient aircraft zero aoa, landing config
+Cmacw = Cm0_airfoil*(AR*cos(Delta_LE)**2)/(AR+2*cos(Delta_LE))
+delta_flap_quarter =
+delta_flap = delta_flap_quarter - CLAh*(0.25 - xac/c)
+delta_fus = -1.8*(1 - 2.5*bf/lf)*pi*bf*hf*lf*CL_0_landing/(4*S*c*CL_alpha_Ah)
+delta_nac =
+Cmac = Cmacw + delta_flap + delta_fus + delta_nac
+
 
 # Stability curve
 
@@ -304,6 +312,8 @@ plt.legend(loc = 'upper left')
 plt.ylabel('Sh/S [-]')
 plt.xlabel('Xcg/MAC [-]')
 plt.title('Scissor plot of the ATR72-600')
+plt.xlim(0,1)
+plt.ylim(0,0.4)
 plt.show()
 
 
