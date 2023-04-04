@@ -13,7 +13,7 @@ x_leadingedge = 11.23 # [m]
 
 # Fuselage group; fuselage, horizontal tailplane, vertical tailplane, nose gear
 
-xcg_f = 12.9  # [m] old 11.5
+xcg_f = 10.3  # [m] old 12.9
 W_f = 0.248*MTOW  # [kg]
 
 xcg_h = 25.6  # [m]
@@ -26,9 +26,9 @@ xcg_ng = 1.664  # [m]
 W_ng = 0.005*MTOW  # [kg]
 
 xcg_cf = 4.6  # [m]
-W_cargof = 500 # [kg]
+W_cargof = 700 # [kg]
 xcg_cb = 22.9  # [m]
-W_cargob = 400 # [kg]
+W_cargob = 100 # [kg]
 
 seat_pitch = 0.7366  # [m]
 xcg_frontpass = 6  # [m]
@@ -42,10 +42,11 @@ xcg_fgroup_mac = (xcg_fgroup - x_leadingedge)/MAC  # [MAC]
 
 # Wing group, wing, main landing gear, propulsion
 
-xcg_w = 11.4  # [m] approximately old 12.15
+xcg_w = 12.1  # [m] do not change
 W_w = 0.149*MTOW  # [kg]
 
-xcg_mg = 12.1  # [m] old 12.434
+xcg_mg = 12.2  # [m]
+xcg_mg_mac = (xcg_mg - x_leadingedge)/MAC
 W_mg = 0.035*MTOW  #[kg]
 
 xcg_p = xcg_w - 2.0  # [m]
@@ -189,6 +190,12 @@ def fuel(xcg_passbackaisle, W_passbackaisle):
 
 xcg_fueltotal, W_fueltotal = fuel(xcg_passbackaisle, W_passbackaisle)
 
+# check main landing gear clearance
+
+xcg_final = xcg_fueltotal[-1]*MAC + x_leadingedge
+if xcg_mg <= 1.1*xcg_final:
+    print("xcg of main landing gear is ", (1-xcg_mg/(xcg_final))*100, "% behind the MTOW xcg, xcg_mg should be more than 10% behind aft cg.")
+
 # Calculate min and max cg position
 
 xcg_min_list = [min(xcg_carfront), min(xcg_carback), min(xcg_passforward), min(xcg_passback), min(xcg_passforwardaisle), min(xcg_passbackaisle), min(xcg_fueltotal)]
@@ -215,6 +222,7 @@ plt.show()
 # Aircraft fixed parameters
 
 S = 61.0/(MAC*MAC)
+S_true = S*MAC*MAC
 Snet = (61.0 - 8.94)/(MAC*MAC) # approximately
 b = 27.05/MAC  # [m]
 cg = S/b
@@ -222,6 +230,7 @@ AR = b**2/S
 bh = 8.1/MAC  # [m] approximately
 Sh = 12/(MAC*MAC)  # [m] approximately
 ShS = Sh/S
+print("Original value Sh/S =", ShS)
 ARh = bh**2/Sh  # or 4.4
 bf = 2.64/MAC  # [m] fuselage diameter estimate
 hf = bf  # [m] fuselage height=diameter estimate
@@ -234,12 +243,14 @@ ln = 2.130/MAC  # [m] distance front nacelle to 1/4 cord wikipedia
 deda = 4/(AR + 2)  # de/ da: the higher, the less stable.
 lh = 13.5/MAC  # lh: the higher, the more stable.
 c = 1
-Vh = 138.89/MAC
-V = 138.89/MAC  # Vh/V: the higher, the more stable.
+Vh = 138.89
+V = 138.89  # Vh/V: the higher, the more stable.
+Vmin = 58.132
 VhV = Vh/V
 M = V/343
-beta = sqrt(1-M**2)
+beta = sqrt(1-M**3)
 eta = 0.95  # efficiency factor
+rho = 1.225  # kg/m^3
 Delta_halfC = 0.0  # half cord sweep in rad
 Delta_LE = 0.0
 Delta_quartc = 0.0
@@ -247,7 +258,7 @@ Delta_halfCh = 4.5*pi/180  # half cord sweep tail in rad
 Delta_LEh = 14.0*pi/180
 
 CLh = -0.8  # True value Lift coefficient adjustable tail
-CLAh = 1.5  # Tailless lift coefficient 1.5?
+CLAh = 2*W_fueltotal[0]/(rho*S_true*Vmin**2)  # Tailless lift coefficient 1.5?
 
 CL_alpha_h = 2*pi*ARh/(2 + sqrt(4 + (ARh*beta/eta)**2 * (1 + tan(Delta_halfCh)**2/beta**2)))
 CL_alpha = 2*pi*AR/(2 + sqrt(4 + (AR*beta/eta)**2 * (1 + tan(Delta_halfC)**2/beta**2)))
