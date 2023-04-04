@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from math import *
-from Load import *
+from part1_fixed import *
 
 MTOW = 23000  # [kg] Maximum take off weight
 MZFW = 21000  # [kg] Maximum zero fuel weight
@@ -23,8 +23,8 @@ W_v = 0.02*MTOW  # [kg]
 
 W_ng = 0.005*MTOW  # [kg]
 
-W_cargof = W_cargof # [kg]
-W_cargob = W_cargob # [kg]
+W_cargof = W_cargof  # [kg]
+W_cargob = W_cargob #- 200 # [kg]
 
 seat_pitch = 0.7366  # [m]
 xcg_frontpass = 6  # [m]
@@ -187,9 +187,8 @@ xcg_fueltotal, W_fueltotal = fuel(xcg_passbackaisle, W_passbackaisle)
 
 
 # check main landing gear clearance
-xcg_final = xcg_fueltotal[-1]*MAC + x_leadingedge
-if xcg_mg <= 1.1*xcg_final:
-    print("xcg of main landing gear ATR HE is ", (1-xcg_mg/(xcg_final))*100, "% behind the MTOW xcg, xcg_mg should be more than 10% behind aft cg.")
+if xcg_mg_mac - xcg_fueltotal[-1] <= 0.1:
+    print("xcg of main landing gear is ", (xcg_mg_mac - xcg_fueltotal[-1])*100, "% in front of the MTOW xcg, xcg_mg should be more than 10% behind aft cg.")
 
 # Calculate min and max cg position
 
@@ -210,7 +209,7 @@ plt.ylabel('W [kg]')
 plt.title('Loading diagram of the ATR72-HE')
 plt.legend()
 plt.ylim(13000, 24000)
-plt.xlim(0.35, 0.75)
+plt.xlim(0.0, 0.42)
 plt.show()
 
 
@@ -218,53 +217,145 @@ plt.show()
 
 # Aircraft fixed parameters
 
-b_new = b*sqrt(1.2)
-S_new = S
-# Snet = (S_new - 8.94)/(MAC*MAC) # approximately
-cg = S_new/b_new
-AR = b_new**2/S_new
-ShS = Sh/S_new
 
-CLAh = 2*W_fueltotal[0]/(rho*S*Vmin**2)  # Tailless lift coefficient 1.5?
-CL_alpha_h = 2*pi*ARh/(2 + sqrt(4 + (ARh*beta/eta)**2 * (1 + tan(Delta_halfCh)**2/beta**2)))
-CL_alpha = 2*pi*AR/(2 + sqrt(4 + (AR*beta/eta)**2 * (1 + tan(Delta_halfC)**2/beta**2)))
-CL_alpha_Ah = CL_alpha_h*(1 + 2.15*bf/b_new)*Snet/S_new + pi*bf**2/(2*S_new)
+AR_new = AR*1.2
+ln_new = ln*1.15
+bn_new = bn*1.25
+
+CLh = -0.8  # True value Lift coefficient adjustable tail
+CLAh = 2*W_fueltotal[0]*9.80665/(rho_landing*S*V_app**2)  # Tailless lift coefficient 1.5?
+print("Wfueltotal=", W_fueltotal[0])
+print("rho=",rho_landing)
+print("S=",S)
+print("Vapp=",V_app)
+def CL_alpha_Vcr(Vcr, eta, AR_new, ARh, Delta_halfC, Delta_halfCh):
+    M = Vcr / 343
+    beta = sqrt(1 - M ** 2)
+    CL_alpha_h_cr = 2*pi*ARh/(2 + sqrt(4 + (ARh*beta/eta)**2 * (1 + tan(Delta_halfCh)**2/beta**2)))
+    CL_alpha_cr = 2*pi*AR_new/(2 + sqrt(4 + (AR_new*beta/eta)**2 * (1 + tan(Delta_halfC)**2/beta**2)))
+    CL_alpha_Ah_cr = CL_alpha_h_cr*(1 + 2.15*bf/b)*Snet/S + pi*bf**2/(2*S)
+    return CL_alpha_h_cr, CL_alpha_cr, CL_alpha_Ah_cr
+
+def CL_alpha_Vapp(V_app, eta, AR_new, ARh, Delta_halfC, Delta_halfCh):
+    M = V_app / 343
+    beta = sqrt(1 - M ** 2)
+    CL_alpha_h_app = 2*pi*ARh/(2 + sqrt(4 + (ARh*beta/eta)**2 * (1 + tan(Delta_halfCh)**2/beta**2)))
+    CL_alpha_app = 2*pi*AR_new/(2 + sqrt(4 + (AR_new*beta/eta)**2 * (1 + tan(Delta_halfC)**2/beta**2)))
+    CL_alpha_Ah_app = CL_alpha_h_app*(1 + 2.15*bf/b)*Snet/S + pi*bf**2/(2*S)
+    return CL_alpha_h_app, CL_alpha_app, CL_alpha_Ah_app
+
+CL_alpha_h_cr, CL_alpha_cr, CL_alpha_Ah_cr = CL_alpha_Vcr(V_cr, eta, AR_new, ARh, Delta_halfC, Delta_halfCh)
+CL_alpha_h_app, CL_alpha_app, CL_alpha_Ah_app = CL_alpha_Vapp(V_app, eta, AR_new, ARh, Delta_halfC, Delta_halfCh)
 
 # Location of aerodynamic center x_ac without tail
-xac_w = 0.25  # from lecture 7 slide 34
-xac_f1 = -1.8*bf*hf*lfn/(CL_alpha_Ah*S_new*c)
-xac_f2 = 0.273*bf*cg*(b_new-bf)*tan(Delta_quartc)/((1+taper)*c**2*(b_new+2.15*bf))
-xac_n = -8.0*bn**2*ln*CL_alpha/(S_new*c*CL_alpha_Ah)
-xac = xac_w + xac_f1 + xac_f2 + xac_n # - x_leadingedge/MAC  # tailless aircraft
 
-Cmac = CLh*Sh*lh/(S*c) - CLAh*(xcg_fueltotal[-1] - xac)/c
+def xac_Vcr(bf,hf,lfn, CL_alpha_Ah_cr, S, c, cg, Delta_quartc, taper, b, bn_new, ln_new, CL_alpha_cr):
+    xac_w = 0.25  # from lecture 7 slide 34
+    xac_f1 = -1.8*bf*hf*lfn/(CL_alpha_Ah_cr*S*c)
+    xac_f2 = 0.273*bf*cg*(b-bf)*tan(Delta_quartc)/((1+taper)*c**2*(b+2.15*bf))
+    xac_n = 2 * -4.0*bn_new**2*ln_new*CL_alpha_cr/(S*c*CL_alpha_Ah_cr)
+    xac_Vcr = xac_w + xac_f1 + xac_f2 + xac_n # - x_leadingedge/MAC  # tailless aircraft
+    # print('X_ac', xac)
+    return xac_Vcr
 
-# Stability curve
+def xac_Vapp(bf,hf,lfn, CL_alpha_Ah_app, S, c, cg, Delta_quartc, taper, b, bn_new, ln_new, CL_alpha_app):
+    xac_w = 0.25  # from lecture 7 slide 34
+    xac_f1 = -1.8*bf*hf*lfn/(CL_alpha_Ah_app*S*c)
+    xac_f2 = 0.273*bf*cg*(b-bf)*tan(Delta_quartc)/((1+taper)*c**2*(b+2.15*bf))
+    xac_n = 2 * -4.0*bn_new**2*ln_new*CL_alpha_app/(S*c*CL_alpha_Ah_app)
+    xac_Vapp = xac_w + xac_f1 + xac_f2 + xac_n # - x_leadingedge/MAC  # tailless aircraft
+    # print('X_ac', xac)
+    return xac_Vapp
 
-x_cg = np.linspace(0, 1, 2)
-ShS_stable = x_cg/(CL_alpha_h*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c)) - (xac-0.05)/(CL_alpha_h*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c))
-ShS_limit = x_cg/(CL_alpha_h*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c)) - xac/(CL_alpha_h*(1-deda)*lh*VhV**2/(CL_alpha_Ah*c))
+xac_Vcr = xac_Vcr(bf,hf,lfn, CL_alpha_Ah_cr, S, c, cg, Delta_quartc, taper, b, bn_new, ln_new, CL_alpha_cr)
+xac_Vapp = xac_Vapp(bf,hf,lfn, CL_alpha_Ah_app, S, c, cg, Delta_quartc, taper, b, bn_new, ln_new, CL_alpha_app)
 
-# Control curve
+Cm0_airfoil =  -0.01  # Zero aoa moment coefficient
+CL_0_landing =  0.1 # Lift coefficient aircraft zero aoa, landing config
+mu1 = 0.2
+mu2 = 0.7
+mu3 = 0.062
+delta_Cl_max = 0.1
+c_prime = c + 0.2
+c_primec = c_prime / c
+S_wf = 12.28
+Cmacw = Cm0_airfoil*(AR_new*cos(Delta_LE)**2)/(AR_new+2*cos(Delta_LE))
+delta_flap_quarter = mu2 * (-mu1 * delta_Cl_max * c_primec - (CLAh + delta_Cl_max*(1-S_wf/S))) * 1/8 * c_primec*(c_primec-1) + 0.7 * AR_new/(1+2/AR_new) * mu3 * delta_Cl_max * tan(Delta_quartc)
+delta_flap = delta_flap_quarter - CLAh*(0.25 - xac_Vapp / c)
+delta_fus = -1.8*(1 - 2.5*bf/lf)*pi*bf*hf*lf*CL_0_landing/(4*S*c*CL_alpha_Ah_app)
+delta_nac = -0.05 #because we have wing mounted engines
+Cmac = Cmacw + delta_flap + delta_fus + delta_nac
 
-ShS_control = x_cg/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac)/(CLh*lh*VhV**2/(CLAh*c))
-ShS_control_0 = xac - Cmac/CLAh
-ShS_control_min = xcg_min/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac)/(CLh*lh*VhV**2/(CLAh*c))
+# CG range - x-as
+x_cg = np.linspace(-0.2, 1, 2)
+
+print('Cmac', Cmac)
+print('CLah', CLAh)
+print('xac_cr', xac_Vcr)
+print('xac_app', xac_Vapp)
+print('deda', deda)
+print('CL_alpha_h_cr', CL_alpha_h_cr)
+print('CL_alpha_h_app', CL_alpha_h_app)
+print('CL_alpha_Ah_cr', CL_alpha_Ah_cr)
+print('CL_alpha_Ah_app', CL_alpha_Ah_app)
+
+# FINAL INPUTS CURVES SYSTEM TEST
+# Cmac = -0.12
+# VhV = 1
+# c = 3.48
+# CLh = -0.58
+# CLAh = 0.95
+# lh = 15.3
+# xac = 0.318
+# deda = 0.2685
+# CL_alpha_h = 4.64 #rad^-1
+# CL_alpha_Ah = 6.490 #rad^-1
+
+# FINAL INPUTS CURVES ATR72-600 CHECK values
+# Cmac = -0.12
+# VhV = 1 #checked
+# c = 2.303 #checked anders 2.37
+# CLh = -0.8 #-0.35 * ARh**(1/3) #-0.58 of -0.8
+# CLAh = 0.16294921690518602*9.81 #checked
+# lh = 13.5
+# xac_cr = 0.35#0.07800506191421946
+# xac_app = 0.35#0.07198185187398014
+# deda = 0.28581385201519266 #4/(AR + 2)
+# CL_alpha_h_cr = 4.503399759062656 #rad^-1 checked
+# CL_alpha_h_app = 4.277419466812022
+# CL_alpha_Ah_cr = 5.024193959454665 #rad^-1 cehcked
+# CL_alpha_Ah_app = 4.7810861672503275 #rad^-1 cehcked
+
+
+# Stability curve - Vcr
+ShS_stable = x_cg/(CL_alpha_h_cr*(1-deda)*lh*VhV**2/(CL_alpha_Ah_cr*c)) - (xac_Vcr-0.05)/(CL_alpha_h_cr*(1-deda)*lh*VhV**2/(CL_alpha_Ah_cr*c))
+ShS_limit = x_cg/(CL_alpha_h_cr*(1-deda)*lh*VhV**2/(CL_alpha_Ah_cr*c)) - (xac_Vcr)/(CL_alpha_h_cr*(1-deda)*lh*VhV**2/(CL_alpha_Ah_cr*c))
+
+# Control curve - Landing configuration V_app
+a_control = 1/((CLh/CLAh)*(lh/c)*VhV**2) # hier iets proberen check CLh
+b_control = (Cmac/CLAh) - xac_Vapp
+y_control = a_control*x_cg+a_control*b_control
+
+#ShS_control = x_cg/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac)/(CLh*lh*VhV**2/(CLAh*c))
+#ShS_control_0 = xac - Cmac/CLAh
+ShS_control_min = xcg_min/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac_Vapp)/(CLh*lh*VhV**2/(CLAh*c))
+
+
 
 
 # Sh/S - x_cg range plot
 xcg_range = np.linspace(xcg_min, xcg_max, 2)
-xcg_range2 = np.linspace(0, 1, 2)
+xcg_range2 = np.linspace(-0.2, 1, 2)
 ycg_range = [ShS_control_min, ShS_control_min]
-print("Minimal value Sh/S =", ShS_control_min)
+#print("Minimal value Sh/S =", ShS_control_min)
 ycg_range2 = [ShS, ShS]
-
 
 plt.plot(xcg_range, ycg_range, label='cg range')
 plt.plot(xcg_range2, ycg_range2, label='cg range actual Sh/S')  # Actual Sh/S value
 plt.plot(x_cg, ShS_stable, label='ShS stable')
 plt.plot(x_cg, ShS_limit, label='ShS limit')
-plt.plot(x_cg, ShS_control, label='ShS control')
+# plt.plot(x_cg, ShS_control, label='ShS control')
+plt.plot(x_cg,y_control, label="ShS control")
 plt.axvline(xcg_max, color='black' ,label='max Xcg')
 plt.axvline(xcg_min, color='black', label='min Xcg')
 # plt.axvline(xac, color='red')
@@ -274,6 +365,6 @@ plt.legend(loc = 'upper left')
 plt.ylabel('Sh/S [-]')
 plt.xlabel('Xcg/MAC [-]')
 plt.title('Scissor plot of the ATR72-HE')
-plt.xlim(0,1)
+plt.xlim(-0.2,1)
 plt.ylim(0,0.4)
 plt.show()

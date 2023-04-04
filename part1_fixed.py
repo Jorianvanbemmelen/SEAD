@@ -26,9 +26,9 @@ xcg_ng = 1.664  # [m]
 W_ng = 0.005*MTOW  # [kg]
 
 xcg_cf = 4.6  # [m]
-W_cargof = 700 # [kg]
+W_cargof = 900 # [kg] max 900
 xcg_cb = 22.9  # [m]
-W_cargob = 100 # [kg]
+W_cargob = 500 # [kg] max 700
 
 seat_pitch = 0.7366  # [m]
 xcg_frontpass = 6  # [m]
@@ -191,10 +191,9 @@ def fuel(xcg_passbackaisle, W_passbackaisle):
 xcg_fueltotal, W_fueltotal = fuel(xcg_passbackaisle, W_passbackaisle)
 
 # check main landing gear clearance
+if xcg_mg_mac - xcg_fueltotal[-1] <= 0.1:
+    print("xcg of main landing gear is ", (xcg_mg_mac - xcg_fueltotal[-1])*100, "% in front of the MTOW xcg, xcg_mg should be more than 10% behind aft cg.")
 
-xcg_final = xcg_fueltotal[-1]*MAC + x_leadingedge
-if xcg_mg <= 1.1*xcg_final:
-    print("xcg of main landing gear is ", (1-xcg_mg/(xcg_final))*100, "% behind the MTOW xcg, xcg_mg should be more than 10% behind aft cg.")
 
 # Calculate min and max cg position
 
@@ -213,11 +212,11 @@ plt.plot(xcg_fueltotal, W_fueltotal, label = 'fuel')
 plt.xlabel('Xcg w.r.t MAC [m]')
 plt.ylabel('W [kg]')
 plt.title('Loading diagram of the ATR72-600')
-plt.ylim(13000, 24000)
-plt.xlim(0.35, 0.75)
+# plt.ylim(13000, 24000)
+# plt.xlim(0.35, 0.75)
 plt.legend()
 plt.show()
-
+print('xcg_mac', xcg_mg_mac)
 
 # Stick-fixed static stability diagram
 
@@ -314,12 +313,12 @@ xac_Vapp = xac_Vapp(bf,hf,lfn, CL_alpha_Ah_app, S, c, cg, Delta_quartc, taper, b
 Cm0_airfoil =  -0.01  # Zero aoa moment coefficient
 CL_0_landing =  0.1 # Lift coefficient aircraft zero aoa, landing config
 mu1 = 0.2 #todo estimated
-mu2 = 0.62 #todo estimated
-mu3 = 0.62 #todo estimated
-delta_Cl_max = 0.48 #todo estimated
-c_prime = 3.25 #todo estimated
+mu2 = 0.7 #todo estimated
+mu3 = 0.062 #todo estimated
+delta_Cl_max = 0.1 #todo estimated
+c_prime = c + 0.2 #todo estimated
 c_primec = c_prime / c #todo estimated
-S_wf = 12 #todo estimated from janes
+S_wf = 12.28 #todo estimated from janes
 Cmacw = Cm0_airfoil*(AR*cos(Delta_LE)**2)/(AR+2*cos(Delta_LE))
 delta_flap_quarter = mu2 * (-mu1 * delta_Cl_max * c_primec - (CLAh + delta_Cl_max*(1-S_wf/S))) * 1/8 * c_primec*(c_primec-1) + 0.7 * AR/(1+2/AR) * mu3 * delta_Cl_max * tan(Delta_quartc)
 delta_flap = delta_flap_quarter - CLAh*(0.25 - xac_Vapp / c)
@@ -353,10 +352,10 @@ CL_alpha_h = 4.64 #rad^-1
 CL_alpha_Ah = 6.490 #rad^-1
 
 # FINAL INPUTS CURVES ATR72-600 CHECK values
-Cmac = -0.12
+Cmac = -0.45401841692378236
 VhV = 1 #checked
-c = 2.303 #checked anders 2.37
-CLh = -0.35 * ARh**(1/3) #-0.58 of -0.8
+c = 2.37 #checked anders 2.37
+CLh = -0.8 #-0.35 * ARh**(1/3) #-0.58 of -0.8
 CLAh = 0.16294921690518602*9.81 #checked
 lh = 13.5
 xac_cr = 0.35#0.07800506191421946
@@ -379,14 +378,14 @@ y_control = a_control*x_cg+a_control*b_control
 
 #ShS_control = x_cg/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac)/(CLh*lh*VhV**2/(CLAh*c))
 #ShS_control_0 = xac - Cmac/CLAh
-ShS_control_min = xcg_min/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac)/(CLh*lh*VhV**2/(CLAh*c))
+ShS_control_min = xcg_min/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac_Vapp)/(CLh*lh*VhV**2/(CLAh*c))
 
 
 
 
 # Sh/S - x_cg range plot
 xcg_range = np.linspace(xcg_min, xcg_max, 2)
-xcg_range2 = np.linspace(0, 1, 2)
+xcg_range2 = np.linspace(-0.2, 1, 2)
 ycg_range = [ShS_control_min, ShS_control_min]
 #print("Minimal value Sh/S =", ShS_control_min)
 ycg_range2 = [ShS, ShS]
@@ -396,7 +395,7 @@ plt.plot(xcg_range2, ycg_range2, label='cg range actual Sh/S')  # Actual Sh/S va
 plt.plot(x_cg, ShS_stable, label='ShS stable')
 plt.plot(x_cg, ShS_limit, label='ShS limit')
 # plt.plot(x_cg, ShS_control, label='ShS control')
-plt.plot(x_cg,y_control, label="ShS control NEW")
+plt.plot(x_cg,y_control, label="ShS control")
 plt.axvline(xcg_max, color='black' ,label='max Xcg')
 plt.axvline(xcg_min, color='black', label='min Xcg')
 # plt.axvline(xac, color='red')
