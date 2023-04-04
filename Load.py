@@ -26,15 +26,15 @@ xcg_ng = 1.664  # [m]
 W_ng = 0.005*MTOW  # [kg]
 
 xcg_cf = 4.6  # [m]
-W_cargof = 300 # [kg]
+W_cargof = 500 # [kg]
 xcg_cb = 22.9  # [m]
-W_cargob = 330 # [kg]
+W_cargob = 500 # [kg]
 
 seat_pitch = 0.7366  # [m]
 xcg_frontpass = 6  # [m]
 n_rows = 18
 xcg_backpass = xcg_frontpass + (n_rows-1)*seat_pitch  # [m]
-W_2pass = 160  # [kg]
+W_2pass = 180  # [kg]
 
 W_fgroup = W_f + W_h + W_v + W_ng + W_cargof + W_cargob + (n_rows)*2*W_2pass
 xcg_fgroup = (xcg_f*W_f + xcg_h*W_h + xcg_v*W_v + xcg_ng*W_ng + xcg_cf*W_cargof + xcg_cb*W_cargob + (xcg_backpass + xcg_frontpass)*n_rows*W_2pass)/(W_f + W_h + W_v + W_ng + W_cargof + W_cargob + n_rows*2*W_2pass)  # [m]

@@ -24,14 +24,14 @@ W_v = 0.02*MTOW  # [kg]
 
 W_ng = 0.005*MTOW  # [kg]
 
-W_cargof = 300 # [kg]
-W_cargob = 330 # [kg]
+W_cargof = 500 # [kg]
+W_cargob = 500 # [kg]
 
 seat_pitch = 0.7366  # [m]
 xcg_frontpass = 6  # [m]
 n_rows = 16
 xcg_backpass = xcg_frontpass + (n_rows-1)*seat_pitch  # [m]
-W_2pass = 160  # [kg]
+W_2pass = 180  # [kg]
 
 W_batt = 1200  # [kg]
 xcg_batt = (xcg_cb*800 + xcg_cf*400)/(800 + 400)  # 1200 kg increase
