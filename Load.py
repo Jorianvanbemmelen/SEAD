@@ -28,7 +28,7 @@ W_ng = 0.005*MTOW  # [kg]
 xcg_cf = 4.6  # [m]
 W_cargof = 500 # [kg]
 xcg_cb = 22.9  # [m]
-W_cargob = 500 # [kg]
+W_cargob = 400 # [kg]
 
 seat_pitch = 0.7366  # [m]
 xcg_frontpass = 6  # [m]

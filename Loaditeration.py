@@ -25,7 +25,7 @@ W_v = 0.02*MTOW  # [kg]
 W_ng = 0.005*MTOW  # [kg]
 
 W_cargof = 500 # [kg]
-W_cargob = 500 # [kg]
+W_cargob = 400 # [kg]
 
 seat_pitch = 0.7366  # [m]
 xcg_frontpass = 6  # [m]
@@ -212,18 +212,21 @@ plt.show()
 # Aircraft fixed parameters
 
 b_new = b*sqrt(1.2)
-cg = S/b_new
-AR = b_new**2/S
+S_new = S
+# Snet = (S_new - 8.94)/(MAC*MAC) # approximately
+cg = S_new/b_new
+AR = b_new**2/S_new
+ShS = Sh/S_new
 
 CL_alpha_h = 2*pi*ARh/(2 + sqrt(4 + (ARh*beta/eta)**2 * (1 + tan(Delta_halfCh)**2/beta**2)))
 CL_alpha = 2*pi*AR/(2 + sqrt(4 + (AR*beta/eta)**2 * (1 + tan(Delta_halfC)**2/beta**2)))
-CL_alpha_Ah = CL_alpha_h*(1 + 2.15*bf/b_new)*Snet/S + pi*bf**2/(2*S)
+CL_alpha_Ah = CL_alpha_h*(1 + 2.15*bf/b_new)*Snet/S_new + pi*bf**2/(2*S_new)
 
 # Location of aerodynamic center x_ac without tail
 xac_w = 0.25  # from lecture 7 slide 34
-xac_f1 = -1.8*bf*hf*lfn/(CL_alpha_Ah*S*c)
+xac_f1 = -1.8*bf*hf*lfn/(CL_alpha_Ah*S_new*c)
 xac_f2 = 0.273*bf*cg*(b_new-bf)*tan(Delta_quartc)/((1+taper)*c**2*(b_new+2.15*bf))
-xac_n = -8.0*bn**2*ln*CL_alpha/(S*c*CL_alpha_Ah)
+xac_n = -8.0*bn**2*ln*CL_alpha/(S_new*c*CL_alpha_Ah)
 xac = xac_w + xac_f1 + xac_f2 + xac_n # - x_leadingedge/MAC  # tailless aircraft
 
 Cmac = CLh*Sh*lh/(S*c) - CLAh*(xcg_fueltotal[-1] - xac)/c
