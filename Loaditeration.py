@@ -13,7 +13,6 @@ x_leadingedge = 11.23 # [m]
 
 # Fuselage group; fuselage, horizontal tailplane, vertical tailplane, nose gear
 
-xcg_f = 12.9  # [m] old 11.5
 xcg_f = xcg_f - 0.9
 W_f = 0.248*MTOW  # [kg]
 W_f_new = 1.02*W_f  # [kg] 460 kg increase
@@ -24,8 +23,8 @@ W_v = 0.02*MTOW  # [kg]
 
 W_ng = 0.005*MTOW  # [kg]
 
-W_cargof = 500 # [kg]
-W_cargob = 400 # [kg]
+W_cargof = W_cargof # [kg]
+W_cargob = W_cargob # [kg]
 
 seat_pitch = 0.7366  # [m]
 xcg_frontpass = 6  # [m]
@@ -186,6 +185,12 @@ def fuel(xcg_passbackaisle, W_passbackaisle):
 
 xcg_fueltotal, W_fueltotal = fuel(xcg_passbackaisle, W_passbackaisle)
 
+
+# check main landing gear clearance
+xcg_final = xcg_fueltotal[-1]*MAC + x_leadingedge
+if xcg_mg <= 1.1*xcg_final:
+    print("xcg of main landing gear ATR HE is ", (1-xcg_mg/(xcg_final))*100, "% behind the MTOW xcg, xcg_mg should be more than 10% behind aft cg.")
+
 # Calculate min and max cg position
 
 xcg_min_list = [min(xcg_carfront), min(xcg_carback), min(xcg_passforward), min(xcg_passback), min(xcg_passforwardaisle), min(xcg_passbackaisle), min(xcg_fueltotal)]
@@ -220,6 +225,7 @@ cg = S_new/b_new
 AR = b_new**2/S_new
 ShS = Sh/S_new
 
+CLAh = 2*W_fueltotal[0]/(rho*S*Vmin**2)  # Tailless lift coefficient 1.5?
 CL_alpha_h = 2*pi*ARh/(2 + sqrt(4 + (ARh*beta/eta)**2 * (1 + tan(Delta_halfCh)**2/beta**2)))
 CL_alpha = 2*pi*AR/(2 + sqrt(4 + (AR*beta/eta)**2 * (1 + tan(Delta_halfC)**2/beta**2)))
 CL_alpha_Ah = CL_alpha_h*(1 + 2.15*bf/b_new)*Snet/S_new + pi*bf**2/(2*S_new)
