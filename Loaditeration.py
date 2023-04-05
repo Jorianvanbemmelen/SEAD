@@ -1,13 +1,8 @@
-
-import numpy as np
-import matplotlib.pyplot as plt
-from math import *
 from part1_fixed import *
 
 MTOW = 23000  # [kg] Maximum take off weight
 MZFW = 21000  # [kg] Maximum zero fuel weight
 OEW = 13600  # [kg] Operational empty weight
-
 MAC = 2.37  # [m]
 x_leadingedge = 11.23 # [m]
 
@@ -33,7 +28,7 @@ xcg_backpass = xcg_frontpass + (n_rows-1)*seat_pitch  # [m]
 W_2pass = 180  # [kg]
 
 W_batt = 1200  # [kg]
-xcg_batt = (xcg_cb*600 + xcg_cf*600)/(800 + 400)  # 1200 kg increase
+xcg_batt = (xcg_cb*800 + xcg_cf*400)/(800 + 400)  # 1200 kg increase
 
 # Not really important:
 W_fgroup = W_f_new + W_h + W_v + W_ng + W_cargof + W_cargob + (n_rows)*2*W_2pass + W_batt
@@ -185,13 +180,11 @@ def fuel(xcg_passbackaisle, W_passbackaisle):
 
 xcg_fueltotal, W_fueltotal = fuel(xcg_passbackaisle, W_passbackaisle)
 
-
 # check main landing gear clearance
 if xcg_mg_mac - xcg_fueltotal[-1] <= 0.1:
     print("xcg of main landing gear is ", (xcg_mg_mac - xcg_fueltotal[-1])*100, "% in front of the MTOW xcg, xcg_mg should be more than 10% behind aft cg.")
 
 # Calculate min and max cg position
-
 xcg_min_list = [min(xcg_carfront), min(xcg_carback), min(xcg_passforward), min(xcg_passback), min(xcg_passforwardaisle), min(xcg_passbackaisle), min(xcg_fueltotal)]
 xcg_max_list = [max(xcg_carfront), max(xcg_carback), max(xcg_passforward), max(xcg_passback), max(xcg_passforwardaisle), max(xcg_passbackaisle), max(xcg_fueltotal)]
 xcg_min = min(xcg_min_list)
@@ -212,12 +205,8 @@ plt.ylim(13000, 24000)
 plt.xlim(-0.05, 0.42)
 plt.show()
 
-
 # Stick-fixed static stability diagram
-
 # Aircraft fixed parameters
-
-
 AR_new = AR*1.2
 ln_new = ln*1.15
 bn_new = bn*1.25
@@ -233,7 +222,7 @@ def CL_alpha_Vcr(Vcr, eta, AR_new, ARh, Delta_halfC, Delta_halfCh):
     beta = sqrt(1 - M ** 2)
     CL_alpha_h_cr = 2*pi*ARh/(2 + sqrt(4 + (ARh*beta/eta)**2 * (1 + tan(Delta_halfCh)**2/beta**2)))
     CL_alpha_cr = 2*pi*AR_new/(2 + sqrt(4 + (AR_new*beta/eta)**2 * (1 + tan(Delta_halfC)**2/beta**2)))
-    CL_alpha_Ah_cr = CL_alpha_h_cr*(1 + 2.15*bf/b)*Snet/S + pi*bf**2/(2*S)
+    CL_alpha_Ah_cr = CL_alpha_cr*(1 + 2.15*bf/b)*Snet/S + pi*bf**2/(2*S)
     return CL_alpha_h_cr, CL_alpha_cr, CL_alpha_Ah_cr
 
 def CL_alpha_Vapp(V_app, eta, AR_new, ARh, Delta_halfC, Delta_halfCh):
@@ -241,7 +230,7 @@ def CL_alpha_Vapp(V_app, eta, AR_new, ARh, Delta_halfC, Delta_halfCh):
     beta = sqrt(1 - M ** 2)
     CL_alpha_h_app = 2*pi*ARh/(2 + sqrt(4 + (ARh*beta/eta)**2 * (1 + tan(Delta_halfCh)**2/beta**2)))
     CL_alpha_app = 2*pi*AR_new/(2 + sqrt(4 + (AR_new*beta/eta)**2 * (1 + tan(Delta_halfC)**2/beta**2)))
-    CL_alpha_Ah_app = CL_alpha_h_app*(1 + 2.15*bf/b)*Snet/S + pi*bf**2/(2*S)
+    CL_alpha_Ah_app = CL_alpha_app*(1 + 2.15*bf/b)*Snet/S + pi*bf**2/(2*S)
     return CL_alpha_h_app, CL_alpha_app, CL_alpha_Ah_app
 
 CL_alpha_h_cr, CL_alpha_cr, CL_alpha_Ah_cr = CL_alpha_Vcr(V_cr, eta, AR_new, ARh, Delta_halfC, Delta_halfCh)
@@ -270,15 +259,6 @@ def xac_Vapp(bf,hf,lfn, CL_alpha_Ah_app, S, c, cg, Delta_quartc, taper, b, bn_ne
 xac_Vcr = xac_Vcr(bf,hf,lfn, CL_alpha_Ah_cr, S, c, cg, Delta_quartc, taper, b, bn_new, ln_new, CL_alpha_cr)
 xac_Vapp = xac_Vapp(bf,hf,lfn, CL_alpha_Ah_app, S, c, cg, Delta_quartc, taper, b, bn_new, ln_new, CL_alpha_app)
 
-# Cm0_airfoil = -0.01  # Zero aoa moment coefficient
-# CL_0_landing = 0.1  # Lift coefficient aircraft zero aoa, landing config
-# mu1 = 0.2
-# mu2 = 0.7
-# mu3 = 0.062
-# delta_Cl_max = 0.1
-# c_prime = c + 0.2
-# c_primec = c_prime / c
-# S_wf = 12.28
 Cmacw = Cm0_airfoil*(AR_new*cos(Delta_LE)**2)/(AR_new+2*cos(Delta_LE))
 delta_flap_quarter = mu2 * (-mu1 * delta_Cl_max * c_primec - (CLAh + delta_Cl_max*(1-S_wf/S))) * 1/8 * c_primec*(c_primec-1) + 0.7 * AR_new/(1+2/AR_new) * mu3 * delta_Cl_max * tan(Delta_quartc)
 delta_flap = delta_flap_quarter - CLAh*(0.25 - xac_Vapp / c)
@@ -308,8 +288,6 @@ a_control = 1/((CLh/CLAh)*(lh/c)*VhV**2) # hier iets proberen check CLh
 b_control = (Cmac/CLAh) - xac_Vapp
 y_control = a_control*x_cg+a_control*b_control
 
-#ShS_control = x_cg/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac)/(CLh*lh*VhV**2/(CLAh*c))
-#ShS_control_0 = xac - Cmac/CLAh
 ShS_control_min = (xcg_min - 0.02*xcg_min)/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac_Vapp)/(CLh*lh*VhV**2/(CLAh*c))
 
 # Sh/S - x_cg range plot

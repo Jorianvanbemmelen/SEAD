@@ -13,7 +13,7 @@ x_leadingedge = 11.23 # [m]
 
 # Fuselage group; fuselage, horizontal tailplane, vertical tailplane, nose gear
 
-xcg_f = 10.1  # [m] old 12.9
+xcg_f = 10.0  # [m] old 12.9
 W_f = 0.248*MTOW  # [kg]
 
 xcg_h = 25.6  # [m]
@@ -274,7 +274,7 @@ def CL_alpha_Vcr(Vcr, eta, AR, ARh, Delta_halfC, Delta_halfCh):
     beta = sqrt(1 - M ** 2)
     CL_alpha_h_cr = 2*pi*ARh/(2 + sqrt(4 + (ARh*beta/eta)**2 * (1 + tan(Delta_halfCh)**2/beta**2)))
     CL_alpha_cr = 2*pi*AR/(2 + sqrt(4 + (AR*beta/eta)**2 * (1 + tan(Delta_halfC)**2/beta**2)))
-    CL_alpha_Ah_cr = CL_alpha_h_cr*(1 + 2.15*bf/b)*Snet/S + pi*bf**2/(2*S)
+    CL_alpha_Ah_cr = CL_alpha_cr*(1 + 2.15*bf/b)*Snet/S + pi*bf**2/(2*S)
     return CL_alpha_h_cr, CL_alpha_cr, CL_alpha_Ah_cr
 
 def CL_alpha_Vapp(V_app, eta, AR, ARh, Delta_halfC, Delta_halfCh):
@@ -282,7 +282,7 @@ def CL_alpha_Vapp(V_app, eta, AR, ARh, Delta_halfC, Delta_halfCh):
     beta = sqrt(1 - M ** 2)
     CL_alpha_h_app = 2*pi*ARh/(2 + sqrt(4 + (ARh*beta/eta)**2 * (1 + tan(Delta_halfCh)**2/beta**2)))
     CL_alpha_app = 2*pi*AR/(2 + sqrt(4 + (AR*beta/eta)**2 * (1 + tan(Delta_halfC)**2/beta**2)))
-    CL_alpha_Ah_app = CL_alpha_h_app*(1 + 2.15*bf/b)*Snet/S + pi*bf**2/(2*S)
+    CL_alpha_Ah_app = CL_alpha_app*(1 + 2.15*bf/b)*Snet/S + pi*bf**2/(2*S)
     return CL_alpha_h_app, CL_alpha_app, CL_alpha_Ah_app
 
 CL_alpha_h_cr, CL_alpha_cr, CL_alpha_Ah_cr = CL_alpha_Vcr(V_cr, eta, AR, ARh, Delta_halfC, Delta_halfCh)
