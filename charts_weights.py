@@ -6,9 +6,10 @@ OEW = 13450     # Operational Empty Weight [kg]
 PW = 7550       # Max Payload Weight [kg]
 FW = 5000       # Max Fuel Weight [kg]
 
-Fuel = 2000     # Fuel Weight Using MTOW - MZFW [kg]
+payload = 36 * 180 + 900 + 500
+Fuel = 1736     # Fuel Weight Using MTOW - payload [kg]
 
-Ws = [OEW, PW, Fuel]
+Ws = [OEW, payload, Fuel]
 Wlabels = ['Operational Empty Weight', 'Payload Weight', 'Fuel Weight']
 
 fig, ax = plt.subplots(figsize=(8, 3), subplot_kw=dict(aspect='equal'))
