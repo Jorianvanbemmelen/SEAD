@@ -48,7 +48,7 @@ W_mg = 0.035*MTOW  #[kg]
 
 W_p = 0.103*MTOW  # [kg]
 
-W_fuel = MTOW - (W_fgroup + W_w + W_mg + W_p)
+W_fuel = MTOW - (W_fgroup + W_w + W_mg + W_p + 156)
 
 W_wgroup = W_w + W_mg + W_p + W_fuel
 xcg_wgroup = (xcg_w*W_w + xcg_mg*W_mg + xcg_p*W_p + xcg_fuel*W_fuel)/(W_w + W_mg + W_p + W_fuel) # [m]

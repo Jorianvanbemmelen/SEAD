@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ed417962-b986-469b-b330-021d3c12d832" name="Changes" comment="commited">
-      <change beforePath="$PROJECT_DIR$/.idea/SEAD.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SEAD.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Load.py" beforeDir="false" afterPath="$PROJECT_DIR$/Load.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Loaditeration.py" beforeDir="false" afterPath="$PROJECT_DIR$/Loaditeration.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/part1_fixed.py" beforeDir="false" afterPath="$PROJECT_DIR$/part1_fixed.py" afterDir="false" />
     </list>
@@ -127,7 +124,14 @@
       <option name="project" value="LOCAL" />
       <updated>1680598832676</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="commited">
+      <created>1680723675013</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1680723675013</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
