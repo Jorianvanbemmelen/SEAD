@@ -13,7 +13,7 @@ x_leadingedge = 11.23 # [m]
 
 # Fuselage group; fuselage, horizontal tailplane, vertical tailplane, nose gear
 
-xcg_f = 10.3  # [m] old 12.9
+xcg_f = 10.1  # [m] old 12.9
 W_f = 0.248*MTOW  # [kg]
 
 xcg_h = 25.6  # [m]
@@ -63,7 +63,7 @@ xcg_wgroup_mac = (xcg_wgroup - x_leadingedge)/MAC # [MAC]
 
 xcgOEW = (xcg_w*W_w + xcg_f*W_f + xcg_h*W_h + xcg_v*W_v + xcg_mg*W_mg + xcg_ng*W_ng + xcg_p*W_p)/(W_w + W_f + W_h + W_v + W_mg + W_ng + W_p) # [m]
 xcgOEWmac = (xcgOEW - x_leadingedge)/MAC  # [MAC]
-W_fixed = W_w + W_f + W_h + W_v + W_mg + W_ng + W_p
+W_fixed = W_w + W_f + W_h + W_v + W_mg + W_ng + W_p + 156
 
 xcgMTOW = (xcg_w*W_w + xcg_f*W_f + xcg_h*W_h + xcg_v*W_v + xcg_mg*W_mg + xcg_ng*W_ng + xcg_p*W_p + xcg_fuel*W_fuel + xcg_cf*W_cargof + xcg_cb*W_cargob + (xcg_backpass + xcg_frontpass)*n_rows*W_2pass)/(W_w + W_f + W_h + W_v + W_mg + W_ng + W_p + W_fuel + W_cargof + W_cargob + n_rows*2*W_2pass) # [m]
 xcgMTOWmac = (xcgOEW - x_leadingedge)/MAC  # [MAC]
@@ -215,8 +215,9 @@ plt.title('Loading diagram of the ATR72-600')
 # plt.ylim(13000, 24000)
 # plt.xlim(0.35, 0.75)
 plt.legend()
+plt.ylim(13000, 24000)
+plt.xlim(-0.05, 0.42)
 plt.show()
-print('xcg_mac', xcg_mg_mac)
 
 # Stick-fixed static stability diagram
 
@@ -243,7 +244,7 @@ ln = 2.130  # [m] distance front nacelle to 1/4 cord wikipedia
 
 deda = 4/(AR + 2)  # de/ da: the higher, the less stable.
 lh = 13.5  # lh: the higher, the more stable.
-c = 3.48 #2.37
+c = 2.37
 Vh = 138.89
 V = 138.89  # Vh/V: the higher, the more stable.
 V_app = 58.132
@@ -312,13 +313,13 @@ xac_Vapp = xac_Vapp(bf,hf,lfn, CL_alpha_Ah_app, S, c, cg, Delta_quartc, taper, b
 
 Cm0_airfoil =  -0.01  # Zero aoa moment coefficient
 CL_0_landing =  0.1 # Lift coefficient aircraft zero aoa, landing config
-mu1 = 0.2 #todo estimated
-mu2 = 0.7 #todo estimated
-mu3 = 0.062 #todo estimated
-delta_Cl_max = 0.1 #todo estimated
-c_prime = c + 0.2 #todo estimated
-c_primec = c_prime / c #todo estimated
-S_wf = 12.28 #todo estimated from janes
+mu1 = 0.2
+mu2 = 0.7
+mu3 = 0.062
+delta_Cl_max = 0.1
+c_prime = c + 0.2
+c_primec = c_prime / c
+S_wf = 12.28
 Cmacw = Cm0_airfoil*(AR*cos(Delta_LE)**2)/(AR+2*cos(Delta_LE))
 delta_flap_quarter = mu2 * (-mu1 * delta_Cl_max * c_primec - (CLAh + delta_Cl_max*(1-S_wf/S))) * 1/8 * c_primec*(c_primec-1) + 0.7 * AR/(1+2/AR) * mu3 * delta_Cl_max * tan(Delta_quartc)
 delta_flap = delta_flap_quarter - CLAh*(0.25 - xac_Vapp / c)
@@ -339,34 +340,6 @@ print('CL_alpha_h_app', CL_alpha_h_app)
 print('CL_alpha_Ah_cr', CL_alpha_Ah_cr)
 print('CL_alpha_Ah_app', CL_alpha_Ah_app)
 
-# FINAL INPUTS CURVES SYSTEM TEST
-Cmac = -0.12
-VhV = 1
-c = 3.48
-CLh = -0.58
-CLAh = 0.95
-lh = 15.3
-xac = 0.318
-deda = 0.2685
-CL_alpha_h = 4.64 #rad^-1
-CL_alpha_Ah = 6.490 #rad^-1
-
-# FINAL INPUTS CURVES ATR72-600 CHECK values
-Cmac = -0.45401841692378236
-VhV = 1 #checked
-c = 2.37 #checked anders 2.37
-CLh = -0.8 #-0.35 * ARh**(1/3) #-0.58 of -0.8
-CLAh = 0.16294921690518602*9.81 #checked
-lh = 13.5
-xac_cr = 0.35#0.07800506191421946
-xac_app = 0.35#0.07198185187398014
-deda = 0.28581385201519266 #4/(AR + 2)
-CL_alpha_h_cr = 4.503399759062656 #rad^-1 checked
-CL_alpha_h_app = 4.277419466812022
-CL_alpha_Ah_cr = 5.024193959454665 #rad^-1 cehcked
-CL_alpha_Ah_app = 4.7810861672503275 #rad^-1 cehcked
-
-
 # Stability curve - Vcr
 ShS_stable = x_cg/(CL_alpha_h_cr*(1-deda)*lh*VhV**2/(CL_alpha_Ah_cr*c)) - (xac_Vcr-0.05)/(CL_alpha_h_cr*(1-deda)*lh*VhV**2/(CL_alpha_Ah_cr*c))
 ShS_limit = x_cg/(CL_alpha_h_cr*(1-deda)*lh*VhV**2/(CL_alpha_Ah_cr*c)) - (xac_Vcr)/(CL_alpha_h_cr*(1-deda)*lh*VhV**2/(CL_alpha_Ah_cr*c))
@@ -378,14 +351,12 @@ y_control = a_control*x_cg+a_control*b_control
 
 #ShS_control = x_cg/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac)/(CLh*lh*VhV**2/(CLAh*c))
 #ShS_control_0 = xac - Cmac/CLAh
-ShS_control_min = xcg_min/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac_Vapp)/(CLh*lh*VhV**2/(CLAh*c))
-
-
-
+ShS_control_min = (xcg_min - 0.02*xcg_min)/(CLh*lh*VhV**2/(CLAh*c)) + (Cmac/CLAh - xac_Vapp)/(CLh*lh*VhV**2/(CLAh*c))
 
 # Sh/S - x_cg range plot
-xcg_range = np.linspace(xcg_min, xcg_max, 2)
-xcg_range2 = np.linspace(-0.2, 1, 2)
+xcg_range = np.linspace((xcg_min - 0.02*xcg_min), (xcg_max + 0.02*xcg_max), 2)
+xcg_range1 = np.linspace(xcg_min, xcg_max, 2)
+xcg_range2 = np.linspace(-1, 1, 2)
 ycg_range = [ShS_control_min, ShS_control_min]
 #print("Minimal value Sh/S =", ShS_control_min)
 ycg_range2 = [ShS, ShS]
@@ -396,8 +367,10 @@ plt.plot(x_cg, ShS_stable, label='ShS stable')
 plt.plot(x_cg, ShS_limit, label='ShS limit')
 # plt.plot(x_cg, ShS_control, label='ShS control')
 plt.plot(x_cg,y_control, label="ShS control")
-plt.axvline(xcg_max, color='black' ,label='max Xcg')
-plt.axvline(xcg_min, color='black', label='min Xcg')
+plt.axvline(xcg_max, color='grey' ,label='max Xcg')
+plt.axvline(xcg_min, color='grey', label='min Xcg')
+plt.axvline((xcg_max + 0.02*xcg_max), color='black' ,label='max Xcg margin')
+plt.axvline((xcg_min - 0.02*xcg_min), color='black', label='min Xcg margin')
 # plt.axvline(xac, color='red')
 # plt.axvline(ShS_control_0, color='blue')
 plt.axhline(y=0, color='grey')
@@ -405,7 +378,7 @@ plt.legend(loc = 'upper left')
 plt.ylabel('Sh/S [-]')
 plt.xlabel('Xcg/MAC [-]')
 plt.title('Scissor plot of the ATR72-600')
-plt.xlim(-0.2,1)
+plt.xlim(-0.5,0.6)
 plt.ylim(0,0.4)
 plt.show()
 
