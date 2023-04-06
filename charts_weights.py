@@ -12,7 +12,7 @@ Fuel = 1736     # Fuel Weight Using MTOW - payload [kg]
 Ws = [OEW, payload, Fuel]
 Wlabels = ['Operational Empty Weight', 'Payload Weight', 'Fuel Weight']
 
-fig, ax = plt.subplots(figsize=(8, 3), subplot_kw=dict(aspect='equal'))
+fig, ax = plt.subplots(figsize=(4, 2), subplot_kw=dict(aspect='equal'))
 
 print(sum(Ws))
 
@@ -28,7 +28,7 @@ wedges, texts, autotexts = ax.pie(Ws, #center=(-1.5, 0),
 ax.legend(wedges, Wlabels, title="Contributions",
           loc='center left', bbox_to_anchor=(1, 0, 0.5, 1))
 
-plt.setp(autotexts, size=8, weight='bold')
+plt.setp(autotexts, size=12, weight='bold')
 
 ax.set_title("Weight Contributions to MTOW")
 plt.show()
